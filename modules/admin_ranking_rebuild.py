@@ -372,10 +372,18 @@ def build_replay_plan(
                 repeat_details.update({"counted_for_rp": False, "streak_eligible": False, "reason": "pair_daily_limit"})
             elif score1 == score2:
                 affect_streak = True
-                # calculate_deltas() phía trên đã tạo RP hòa random bằng RNG seed theo match_id.
-                # Giữ nguyên kết quả đó, không ghi đè về +3/+6 lần nữa.
-                repeat_details["draw_bonus_applied"] = bool((int(delta1) == 0) != (int(delta2) == 0))
-                repeat_details["draw_random_applied"] = True
+                rp1 = _int(player1.get("rank_points"))
+                rp2 = _int(player2.get("rank_points"))
+                if abs(rp1 - rp2) >= 500:
+                    if rp1 < rp2:
+                        delta1, delta2 = 6, 0
+                    elif rp2 < rp1:
+                        delta1, delta2 = 0, 6
+                    else:
+                        delta1 = delta2 = 3
+                    repeat_details["draw_bonus_applied"] = bool(delta1 == 6 or delta2 == 6)
+                else:
+                    delta1 = delta2 = 3
                 repeat_details.update({"streak_eligible": True, "reason": "draw"})
             else:
                 p1_won = score1 > score2

@@ -6,8 +6,8 @@ Supabase hoặc dữ liệu người dùng. Mọi thay đổi công thức RP ph
 """
 from __future__ import annotations
 
-RP_FORMULA_VERSION = "RP_V1.14.6"
-RP_FORMULA_NAME = "PES Arena RP – Hòa random 1-6 + Series base/variance"
+RP_FORMULA_VERSION = "RP_V1.14.5"
+RP_FORMULA_NAME = "PES Arena RP – Tách thưởng chuỗi khỏi hệ số gặp lại"
 RP_RANDOM_SEED_NAMESPACE = f"PES_ARENA|{RP_FORMULA_VERSION}"
 
 PLACEMENT_MATCHES = 10
@@ -70,9 +70,8 @@ def formula_summary() -> dict:
             "pair_rp_match_limit": 6,
             "streak_bonus_scaled_by_repeat_factor": False,
             "streak_bonus_scaled_by_host_factor": False,
-            "draw_equal_range": [1, 6],
-            "draw_gap_low_player_range": [1, 6],
-            "draw_gap_high_player_points": 0,
+            "draw_equal_points": 3,
+            "draw_gap_bonus": 6,
             "draw_gap_threshold": 500,
         },
     }

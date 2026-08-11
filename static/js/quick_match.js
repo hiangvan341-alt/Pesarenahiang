@@ -49,12 +49,13 @@
   function setButton(mode) {
     const button = findButton();
     if (!button) return;
-    const buttonIcon = button.querySelector('[data-quick-match-icon]');
+    const label = button.querySelector('.quick-match-label');
+    const buttonIcon = button.querySelector('.quick-match-icon');
     button.classList.toggle('is-searching', mode === 'searching');
     button.classList.toggle('is-sent', mode === 'sent');
     button.disabled = mode === 'searching' || mode === 'sent';
     if (buttonIcon) buttonIcon.textContent = mode === 'searching' ? '⏳' : (mode === 'sent' ? '✓' : '⚡');
-    button.textContent = mode === 'searching' ? 'ĐANG TÌM ĐỐI THỦ...' : (mode === 'sent' ? 'ĐANG CHỜ PHẢN HỒI' : 'TÌM NHANH');
+    if (label) label.textContent = mode === 'searching' ? 'ĐANG TÌM ĐỐI THỦ...' : (mode === 'sent' ? 'ĐANG CHỜ PHẢN HỒI' : 'TÌM NHANH');
   }
 
   async function sendNext(button, excluded) {

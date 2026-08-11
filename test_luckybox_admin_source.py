@@ -7,7 +7,7 @@ ROUTES = (ROOT / "modules/luckybox/routes.py").read_text(encoding="utf-8")
 REPOSITORY = (ROOT / "modules/luckybox/repository.py").read_text(encoding="utf-8")
 SERVICE = (ROOT / "modules/luckybox/service.py").read_text(encoding="utf-8")
 TEMPLATE = (ROOT / "templates/admin_luckybox/index.html").read_text(encoding="utf-8")
-SQL = (ROOT / "project_docs/sql/update_luckybox_admin_v1_14_41_43.sql").read_text(encoding="utf-8")
+SQL = (ROOT / "docs/update_luckybox_admin_v1_14_41_43.sql").read_text(encoding="utf-8")
 
 
 def test_phase2b_version_and_python_parse():

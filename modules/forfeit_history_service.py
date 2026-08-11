@@ -88,30 +88,27 @@ def forfeit_loser_id(match):
     return None
 
 
-def _base_forfeit_values(room, offender_role, penalty_delta, reason, winner_delta=0):
+def _base_forfeit_values(room, offender_role, penalty_delta, reason):
     """Tạo dữ liệu bỏ cuộc chỉ bằng các cột chắc chắn có trong dự án."""
     role = "host" if str(offender_role or "").lower() == "host" else "guest"
     delta = _safe_delta(penalty_delta)
     if delta > 0:
         delta = -delta
-    win_delta = max(0, _safe_delta(winner_delta))
 
     return role, delta, {
         "status": "cancelled",
-        "delta1": delta if role == "host" else win_delta,
-        "delta2": delta if role == "guest" else win_delta,
+        "delta1": delta if role == "host" else 0,
+        "delta2": delta if role == "guest" else 0,
         "note": f"{_forfeit_marker(role)} {str(reason or 'Người chơi bỏ cuộc.').strip()}",
         "updated_at": now_iso(),
     }
 
 
-def _existing_match_payload(room, offender_role, penalty_delta, reason, winner_delta=0):
+def _existing_match_payload(room, offender_role, penalty_delta, reason):
     """Payload cập nhật trận đã tạo khi quay đội."""
     _role, _delta, payload = _base_forfeit_values(
-        room, offender_role, penalty_delta, reason, winner_delta,
+        room, offender_role, penalty_delta, reason,
     )
-
-    payload["mode_code"] = str(room.get("team_tier") or "rank_random").replace("smart_random", "rank_random")
 
     optional_room_fields = {
         "team1": "host_team",
@@ -130,7 +127,7 @@ def _existing_match_payload(room, offender_role, penalty_delta, reason, winner_d
     return payload
 
 
-def _new_match_payload(room, offender_role, penalty_delta, reason, winner_delta=0):
+def _new_match_payload(room, offender_role, penalty_delta, reason):
     """Payload tạo trận bỏ cuộc trước lúc quay đội.
 
     Các trường đội, overall và ``host_xp_factor`` được điền giống luồng tạo
@@ -138,7 +135,7 @@ def _new_match_payload(room, offender_role, penalty_delta, reason, winner_delta=
     từ chối INSERT và làm route trả về Internal Server Error.
     """
     _role, _delta, status_payload = _base_forfeit_values(
-        room, offender_role, penalty_delta, reason, winner_delta,
+        room, offender_role, penalty_delta, reason,
     )
 
     host_team = str(room.get("host_team") or "Chưa quay đội")[:120]
@@ -148,7 +145,6 @@ def _new_match_payload(room, offender_role, penalty_delta, reason, winner_delta=
     payload = {
         "player1_id": room.get("host_user_id"),
         "player2_id": room.get("guest_user_id"),
-        "mode_code": str(room.get("team_tier") or "rank_random").replace("smart_random", "rank_random"),
         "team1": host_team,
         "team2": guest_team,
         "team1_overall": _safe_overall(room.get("host_team_overall")),
@@ -179,7 +175,7 @@ def _log_warning(message, *args):
             pass
 
 
-def record_room_forfeit_match(room, offender_role, penalty_delta, reason, event_type="manual_forfeit", winner_delta=0):
+def record_room_forfeit_match(room, offender_role, penalty_delta, reason, event_type="manual_forfeit"):
     """Cập nhật hoặc tạo bản ghi lịch sử cho một lần bỏ cuộc.
 
     ``event_type`` được giữ trong chữ ký để tương thích các route hiện tại,
@@ -199,7 +195,7 @@ def record_room_forfeit_match(room, offender_role, penalty_delta, reason, event_
     match_id = room.get("match_id")
     try:
         if match_id:
-            payload = _existing_match_payload(room, offender_role, penalty_delta, reason, winner_delta)
+            payload = _existing_match_payload(room, offender_role, penalty_delta, reason)
             result = execute_query(
                 db.table("matches").update(payload).eq("id", match_id),
                 "record_forfeit_existing_match",
@@ -212,7 +208,7 @@ def record_room_forfeit_match(room, offender_role, penalty_delta, reason, event_
                 pass
             return match_id if result is not None else None
 
-        payload = _new_match_payload(room, offender_role, penalty_delta, reason, winner_delta)
+        payload = _new_match_payload(room, offender_role, penalty_delta, reason)
         result = execute_query(
             db.table("matches").insert(payload),
             "record_forfeit_new_match",

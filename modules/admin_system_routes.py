@@ -23,7 +23,6 @@ def register_routes(context):
             "maintenance_status": get_maintenance_status(),
             "rank_daily_limits_enabled": daily_rank_limits_enabled(),
             "quick_match_config": get_quick_match_config(),
-            "button_theme_config": get_button_theme_config(),
             "repeat_opponent_rp_config": get_repeat_opponent_rp_config(),
             "weekly_rp_reward_config": get_weekly_rp_reward_config(),
             "duplicate_ip_warning_config": get_duplicate_ip_warning_config(),
@@ -91,47 +90,6 @@ def register_routes(context):
         return redirect_admin("users")
 
 
-
-    @app.route("/admin/system/button-theme", methods=["POST"])
-    @login_required
-    @admin_required
-    @admin_permission_required("system_features_manage")
-    def admin_update_button_theme():
-        payload = dict(BUTTON_THEME_DEFAULTS)
-        for key in payload:
-            value = (request.form.get(key) or payload[key]).strip().lower()
-            if value not in BUTTON_COLOR_VALUES:
-                flash("Bộ màu nút không hợp lệ.", "danger")
-                return redirect_admin("system")
-            payload[key] = value
-
-        execute_query(
-            db.table("system_settings").upsert({
-                "setting_key": BUTTON_THEME_SETTING_KEY,
-                "setting_value": payload,
-                "updated_at": now_iso(),
-            }, on_conflict="setting_key"),
-            "update_button_theme_config", attempts=2,
-        )
-        ttl_cache_delete("button_theme_config")
-        cache_delete("_button_theme_config_cached")
-
-        # Keep the old Quick Match setting in sync for legacy templates/classes.
-        quick_color = "green" if payload["quick"] == "green" else "blue"
-        execute_query(
-            db.table("system_settings").upsert({
-                "setting_key": QUICK_MATCH_SETTING_KEY,
-                "setting_value": {"color": quick_color},
-                "updated_at": now_iso(),
-            }, on_conflict="setting_key"),
-            "sync_quick_match_color_from_button_theme", attempts=2,
-        )
-        ttl_cache_delete("quick_match_config")
-        cache_delete("_quick_match_config_cached")
-        log_admin_action("Cập nhật bộ màu nút Gaming Neon", "system", details=payload)
-        flash("Đã lưu bộ màu nút Gaming Neon cho giao diện người chơi.", "success")
-        return redirect_admin("system")
-
     @app.route("/admin/system/quick-match", methods=["POST"])
     @login_required
     @admin_required
@@ -150,18 +108,6 @@ def register_routes(context):
         )
         ttl_cache_delete("quick_match_config")
         cache_delete("_quick_match_config_cached")
-        theme = get_button_theme_config()
-        theme["quick"] = color
-        execute_query(
-            db.table("system_settings").upsert({
-                "setting_key": BUTTON_THEME_SETTING_KEY,
-                "setting_value": theme,
-                "updated_at": now_iso(),
-            }, on_conflict="setting_key"),
-            "sync_button_theme_from_quick_match", attempts=2,
-        )
-        ttl_cache_delete("button_theme_config")
-        cache_delete("_button_theme_config_cached")
         log_admin_action("Cập nhật màu nút Tìm Nhanh", "system", details={"color": color})
         flash("Đã lưu màu nút Tìm Nhanh.", "success")
         return redirect_admin("system")
@@ -263,23 +209,9 @@ def register_routes(context):
     def admin_update_system_features():
         previous_features = get_system_features()
         features = {key: request.form.get(key) == "1" for key in SYSTEM_FEATURE_DEFAULTS}
-
-        # Công tắc 6 chế độ Rank được quản lý tại cùng khu vực Tính năng hệ thống.
-        # Chỉ cập nhật trường enabled, giữ nguyên điều kiện mở khóa và công thức RP.
-        rank_mode_configs = get_rank_mode_configs()
-        for mode_code, mode_config in rank_mode_configs.items():
-            mode_config["enabled"] = request.form.get(f"rank_mode__{mode_code}") == "1"
-        # Luôn giữ ít nhất một chế độ Rank hoạt động.
-        if not any(bool(mode.get("enabled")) for mode in rank_mode_configs.values()):
-            first_mode = next(iter(rank_mode_configs.values()), None)
-            if first_mode is not None:
-                first_mode["enabled"] = True
-        save_rank_mode_configs(rank_mode_configs)
-        # Hai cờ cũ vẫn được giữ làm lớp tương thích cho route phòng hiện tại.
-        # rank_standard_enabled đại diện việc còn ít nhất một mode Rank hoạt động;
-        # friendly_random3_enabled phản ánh riêng mode Random 3 chọn 1.
-        features["rank_standard_enabled"] = any(bool(mode.get("enabled")) for mode in rank_mode_configs.values())
-        features["friendly_random3_enabled"] = bool((rank_mode_configs.get("random3_pick1") or {}).get("enabled"))
+        # Luôn phải còn ít nhất một chế độ Rank để phòng không bị kẹt.
+        if not features.get("rank_standard_enabled", True):
+            features["friendly_random3_enabled"] = True
 
         execute_query(
             db.table("system_settings").upsert(

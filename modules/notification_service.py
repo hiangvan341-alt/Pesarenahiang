@@ -157,7 +157,7 @@ def list_unread_notifications(user_id, limit=5):
 def list_bell_notifications(user_id, limit=20):
     """Trả thông báo cho chuông với cache RAM ngắn theo từng người dùng.
 
-    Cache 30 giây giúp nhiều context processor/render liên tiếp không tạo các
+    Cache 8 giây giúp nhiều context processor/render liên tiếp không tạo các
     truy vấn giống nhau. Cache bị xóa ngay khi ứng dụng tạo hoặc đánh dấu đọc
     thông báo.
     """
@@ -190,7 +190,7 @@ def list_bell_notifications(user_id, limit=20):
             attempts=2,
         )
         rows = [dict(item) for item in (result.data or [])][:NOTIFICATION_MAX_ITEMS]
-        ttl_cache_set(cache_key, rows, 30)
+        ttl_cache_set(cache_key, rows, 8)
         cache_set(request_key, rows)
         return rows[:safe_limit]
     except Exception as exc:

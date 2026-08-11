@@ -1,4 +1,59 @@
-/* Quick Match module — only result/notice modal styles. The trigger has no stylesheet skin. */
+/* Quick Match module — V1.14.41.34
+   Loaded only on room_detail. */
+
+.room-layout-v137 .room-quick-match-row {
+  width: 100%;
+  max-width: 420px;
+  margin: 4px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn {
+  width: calc((100% - 12px) / 2) !important;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(255, 255, 255, .26) !important;
+  border-radius: 13px !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  letter-spacing: .5px;
+  flex: 0 0 calc((100% - 12px) / 2) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .24);
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn.room-quick-match-blue {
+  background: linear-gradient(135deg, #19a7ff, #006eff) !important;
+  border-color: rgba(125, 211, 252, .72) !important;
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn.room-quick-match-green,
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn.is-sent {
+  background: linear-gradient(135deg, #2bdc78, #079447) !important;
+  border-color: rgba(134, 239, 172, .72) !important;
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn.is-searching {
+  animation: quickMatchPulse 1s ease-in-out infinite;
+}
+
+.room-layout-v137 .room-quick-match-row .room-quick-match-btn:disabled {
+  cursor: not-allowed;
+  opacity: .88;
+}
+
+@keyframes quickMatchPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
 
 .game-notice-open { overflow: hidden; }
 .game-notice-modal[hidden] { display: none !important; }
@@ -79,6 +134,14 @@
   color: #ff8292;
 }
 
+@media (max-width: 640px) {
+  .room-layout-v137 .room-quick-match-row .room-quick-match-btn {
+    width: calc((100% - 12px) / 2) !important;
+    flex-basis: calc((100% - 12px) / 2) !important;
+    padding-inline: 8px !important;
+    font-size: 13px !important;
+  }
+}
 
 @media (max-width: 520px) {
   .game-notice-card { padding: 24px 18px 20px; }

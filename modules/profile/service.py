@@ -112,8 +112,11 @@ def build_profile_context(user_id, viewer):
         return None
 
     user = dict(user)
-    # V1.3.34: chỉ SELECT trận của đúng người chơi, không tải toàn bộ bảng matches.
-    player_matches_raw = load_user_matches(user_id, limit=50)
+    all_matches = list_matches()
+    player_matches_raw = [
+        match for match in all_matches
+        if user_id in {match.get("player1_id"), match.get("player2_id")}
+    ]
     matches = [decorate_match_for_view(match, user_id) for match in player_matches_raw[:10]]
 
     form = []
@@ -139,28 +142,32 @@ def build_profile_context(user_id, viewer):
     decorate_player_achievements(user, position)
     user["is_online"] = is_user_online_now(user)
 
-    # Favorite team / đối thủ thường gặp đã được Supabase cập nhật sau mỗi trận xác nhận.
-    profile_summary = load_player_profile_summary(user_id) or {}
-    user["favorite_team"] = profile_summary.get("favorite_team") or "Chưa có"
-    frequent_opponent_id = profile_summary.get("frequent_opponent_id")
-    frequent_opponent = get_user(frequent_opponent_id) if frequent_opponent_id else None
-    user["frequent_opponent"] = (frequent_opponent or {}).get("display_name") or (frequent_opponent or {}).get("username") or "Chưa có"
+    confirmed = [match for match in player_matches_raw if match.get("status") == "confirmed"]
+    teams = []
+    opponents = []
+    users = users_map()
+    for match in confirmed:
+        as_player1 = match.get("player1_id") == user_id
+        teams.append(match.get("team1") if as_player1 else match.get("team2"))
+        opponent_id = match.get("player2_id") if as_player1 else match.get("player1_id")
+        opponents.append(users.get(opponent_id, {}).get("display_name", "Unknown"))
+    user["favorite_team"] = Counter([team for team in teams if team]).most_common(1)[0][0] if any(teams) else "Chưa có"
+    user["frequent_opponent"] = Counter([name for name in opponents if name]).most_common(1)[0][0] if opponents else "Chưa có"
 
     h2h = None
     if viewer.get("id") != user_id:
-        viewer_id = viewer.get("id")
-        pair = load_pair_stats(viewer_id, user_id) or {}
-        recent_raw = load_h2h_matches(viewer_id, user_id, limit=5)
-        h2h_matches = [decorate_match_for_view(match, viewer_id) for match in recent_raw]
-        low_id = str(pair.get("user_low_id") or "")
-        viewer_wins = int(pair.get("user_low_wins") or 0) if str(viewer_id) == low_id else int(pair.get("user_high_wins") or 0)
-        target_wins = int(pair.get("user_high_wins") or 0) if str(viewer_id) == low_id else int(pair.get("user_low_wins") or 0)
+        h2h_matches = [
+            decorate_match_for_view(match, viewer.get("id"))
+            for match in all_matches
+            if match.get("status") == "confirmed"
+            and {match.get("player1_id"), match.get("player2_id")} == {viewer.get("id"), user_id}
+        ]
         h2h = {
-            "total": int(pair.get("total") or len(h2h_matches)),
-            "wins": viewer_wins,
-            "draws": int(pair.get("draws") or 0),
-            "losses": target_wins,
-            "recent": h2h_matches,
+            "total": len(h2h_matches),
+            "wins": len([m for m in h2h_matches if m.get("result_code") == "win"]),
+            "draws": len([m for m in h2h_matches if m.get("result_code") == "draw"]),
+            "losses": len([m for m in h2h_matches if m.get("result_code") == "loss"]),
+            "recent": h2h_matches[:5],
         }
 
     room_rows = list_rooms()

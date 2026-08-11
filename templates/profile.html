@@ -105,7 +105,7 @@
                     <form method="post" action="{{ url_for('send_invite') }}">
                         <input type="hidden" name="to_user_id" value="{{ player.id }}">
                         <input type="hidden" name="tier" value="Random">
-                        <button class="profile-v2-action is-primary gaming-invite-action" type="submit">⚔️ Mời đấu</button>
+                        <button class="profile-v2-action is-primary" type="submit">⚔️ Mời đấu</button>
                     </form>
                     {% elif activity %}
                     <span class="presence presence-{{ activity.code }}"><i></i>{{ activity.label }}</span>

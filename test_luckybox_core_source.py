@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-SQL = (ROOT / "project_docs/sql/update_luckybox_core_v1_14_41_42.sql").read_text(encoding="utf-8")
+SQL = (ROOT / "docs/update_luckybox_core_v1_14_41_42.sql").read_text(encoding="utf-8")
 APP = (ROOT / "app.py").read_text(encoding="utf-8")
 ROUTES = (ROOT / "modules/luckybox/routes.py").read_text(encoding="utf-8")
 

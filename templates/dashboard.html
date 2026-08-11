@@ -70,7 +70,7 @@
     <article class="dash-panel online-panel">
         <div class="dash-panel-head"><div><h2>Đối thủ online</h2><p>Sẵn sàng thi đấu ngay</p></div><a href="{{ url_for('players') }}">Xem tất cả</a></div>
         <div class="online-opponent-list">
-            {% for p in online_players[:4] %}<div>{{ player_avatar(p, size='sm') }}<p><strong>{{ p.display_name }}</strong><small>{{ p.rank_info.name }} • {{ p.rank_points or 0 }} RP</small></p>{% if p.can_receive_invite %}<form class="invite-opponent-form" method="post" action="{{ url_for('send_invite') }}"><input type="hidden" name="to_user_id" value="{{ p.id }}"><input type="hidden" name="tier" value="Random"><button class="invite-mini gaming-invite-action" type="submit">Mời đấu</button></form>{% else %}<em>{{ p.activity_label }}</em>{% endif %}</div>{% else %}<div class="empty-state">Chưa có đối thủ online.</div>{% endfor %}
+            {% for p in online_players[:4] %}<div>{{ player_avatar(p, size='sm') }}<p><strong>{{ p.display_name }}</strong><small>{{ p.rank_info.name }} • {{ p.rank_points or 0 }} RP</small></p>{% if p.can_receive_invite %}<form class="invite-opponent-form" method="post" action="{{ url_for('send_invite') }}"><input type="hidden" name="to_user_id" value="{{ p.id }}"><input type="hidden" name="tier" value="Random"><button class="invite-mini" type="submit">Mời đấu</button></form>{% else %}<em>{{ p.activity_label }}</em>{% endif %}</div>{% else %}<div class="empty-state">Chưa có đối thủ online.</div>{% endfor %}
         </div>
     </article>
 </section>

@@ -33,9 +33,9 @@
         <tr>
             <td><span class="player-with-avatar">{{ player_avatar(name=inv.from_name, avatar_url=inv.from_avatar_url, achievement=inv.from_achievement, size='xs', frame=inv.from_avatar_frame) }}<strong>{{ inv.from_name }}</strong></span></td><td>{{ inv.from_rank }}</td><td>{{ inv.from_points }}</td><td>⚖️ Smart Rank</td>
             <td>
-                <form class="inline-form invite-response-actions" method="post" action="{{ url_for('respond_invite', invite_id=inv.id) }}">
-                    <button class="btn invite-action-btn is-accept" name="action" value="accept" type="submit">Chấp nhận</button>
-                    <button class="btn invite-action-btn is-reject" name="action" value="reject" type="submit">Từ chối</button>
+                <form class="inline-form" method="post" action="{{ url_for('respond_invite', invite_id=inv.id) }}">
+                    <button class="btn green" name="action" value="accept" type="submit">Chấp nhận</button>
+                    <button class="btn red" name="action" value="reject" type="submit">Từ chối</button>
                 </form>
             </td>
         </tr>

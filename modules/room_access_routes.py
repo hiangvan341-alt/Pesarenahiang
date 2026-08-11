@@ -150,22 +150,9 @@ def register_routes(context):
             daily_limit_message = daily_rank_block_message(
                 room.get("host_user_id"), room.get("guest_user_id")
             )
-        # enrich_room() already loaded these users via users_map(); do not issue
-        # two extra Supabase queries on every full render / Ajax refresh.
-        host_player = room.get("_host_player") or get_user(room.get("host_user_id")) or {}
-        guest_player = room.get("_guest_player") if room.get("guest_user_id") else None
-        if room.get("guest_user_id") and guest_player is None:
-            guest_player = get_user(room.get("guest_user_id"))
-        selected_rank_mode = resolve_enabled_rank_mode(room.get("team_tier"))
-        rank_series = get_room_series_context(room)
-        series_version = (rank_series or {}).get("updated_at") or (rank_series or {}).get("series_id")
         return {
             "room": room,
-            "rank_mode_catalog": rank_mode_catalog_for_players(host_player, guest_player),
-            "selected_rank_mode": selected_rank_mode,
-            "selected_rank_mode_config": get_rank_mode(selected_rank_mode),
-            "rank_series": rank_series,
-            "initial_room_state_key": build_room_state_key(room, series_version),
+            "initial_room_state_key": build_room_state_key(room),
             "friendly_tiers": get_available_team_tiers(),
             "room_head_to_head": build_room_head_to_head(room),
             # Luôn truyền cấu hình Tìm Nhanh vào cả trang đầy đủ và HTML polling.
@@ -231,12 +218,11 @@ def register_routes(context):
         if not is_room_member and not is_admin_user(user):
             return "", 403
 
-        context = build_room_template_context(room)
-        response = make_response(render_template("_room_live_content.html", **context))
+        response = make_response(
+            render_template("_room_live_content.html", **build_room_template_context(room))
+        )
         response.headers["Cache-Control"] = "no-store, max-age=0"
         response.headers["X-PES-Room-Partial"] = "1"
-        response.headers["X-PES-Room-State-Key"] = context.get("initial_room_state_key") or ""
-        response.headers["X-PES-Room-Status"] = str(room.get("status") or "")
         return response
 
 

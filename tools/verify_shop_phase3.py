@@ -99,7 +99,7 @@ def check_routes() -> None:
 
 
 def check_catalog_and_assets() -> None:
-    sql = (ROOT / "project_docs/sql/update_shop_inventory_phase3_v1_14_40.sql").read_text(encoding="utf-8")
+    sql = (ROOT / "docs/update_shop_inventory_phase3_v1_14_40.sql").read_text(encoding="utf-8")
     block = sql.split("insert into public.shop_items", 1)[1].split("on conflict (code)", 1)[0]
     codes = re.findall(r"\n\('([^']+)'", block)
     if len(codes) != 25 or len(set(codes)) != 25:

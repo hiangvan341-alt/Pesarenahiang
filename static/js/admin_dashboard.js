@@ -1,97 +1,113 @@
 (function () {
-    'use strict';
-
     const buttons = Array.from(document.querySelectorAll('[data-admin-tab]'));
-    const currentPanel = document.querySelector('[data-admin-panel]');
-    const activeTab = currentPanel ? currentPanel.dataset.adminPanel : 'overview';
+    const panels = Array.from(document.querySelectorAll('[data-admin-panel]'));
+    const allowedTabs = new Set(buttons.map(function (button) { return button.dataset.adminTab; }));
 
-    buttons.forEach((button) => {
-        const isActive = button.dataset.adminTab === activeTab;
-        button.classList.toggle('active', isActive);
-        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
-        button.tabIndex = isActive ? 0 : -1;
+    function activateAdminTab(tabName) {
+        const selected = allowedTabs.has(tabName) ? tabName : 'overview';
+        buttons.forEach(function (button) {
+            const active = button.dataset.adminTab === selected;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panels.forEach(function (panel) {
+            panel.hidden = panel.dataset.adminPanel !== selected;
+        });
+    }
+
+    buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const tabName = button.dataset.adminTab;
+            window.location.hash = tabName;
+            activateAdminTab(tabName);
+        });
     });
 
-    // Mỗi tab Admin là một module tải riêng từ server. Không còn dựng toàn bộ
-    // admin.html và toàn bộ dữ liệu của mọi tab trong một request.
-    document.addEventListener('click', (event) => {
-        const button = event.target.closest('[data-admin-tab]');
-        if (!button) return;
-        event.preventDefault();
-        const targetUrl = button.dataset.adminUrl;
-        if (!targetUrl || button.dataset.adminTab === activeTab) return;
-        button.classList.add('is-loading');
-        button.setAttribute('aria-busy', 'true');
-        window.location.assign(targetUrl);
+    window.addEventListener('hashchange', function () {
+        activateAdminTab(window.location.hash.replace('#', ''));
     });
+    activateAdminTab(window.location.hash.replace('#', ''));
 
     const searchInput = document.getElementById('adminUserSearch');
     const duplicateOnly = document.getElementById('adminDuplicateOnly');
     const userRows = Array.from(document.querySelectorAll('[data-user-summary]'));
     const emptyState = document.getElementById('adminUserEmpty');
-    let filterFrame = null;
 
     function applyUserFilters() {
-        filterFrame = null;
         const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-        const onlyDuplicate = Boolean(duplicateOnly && duplicateOnly.checked);
+        const onlyDuplicate = duplicateOnly ? duplicateOnly.checked : false;
         let visible = 0;
 
-        userRows.forEach((row) => {
+        userRows.forEach(function (row) {
             const matchesQuery = !query || (row.dataset.userSearch || '').includes(query);
             const matchesDuplicate = !onlyDuplicate || row.dataset.duplicateIp === '1';
             const shouldShow = matchesQuery && matchesDuplicate;
-            const toggle = row.querySelector('[data-user-toggle]');
-            const detail = toggle ? document.getElementById(toggle.dataset.userToggle) : null;
+            const button = row.querySelector('[data-user-toggle]');
+            const detail = button ? document.getElementById(button.dataset.userToggle) : null;
+
             row.hidden = !shouldShow;
             if (!shouldShow && detail) {
                 detail.hidden = true;
-                toggle.setAttribute('aria-expanded', 'false');
-                toggle.textContent = 'Quản lý';
+                button.setAttribute('aria-expanded', 'false');
+                button.textContent = 'Quản lý';
             }
             if (shouldShow) visible += 1;
         });
+
         if (emptyState) emptyState.hidden = visible !== 0;
     }
 
-    function queueUserFilter() {
-        if (filterFrame) cancelAnimationFrame(filterFrame);
-        filterFrame = requestAnimationFrame(applyUserFilters);
-    }
-
-    if (searchInput) searchInput.addEventListener('input', queueUserFilter, { passive: true });
+    if (searchInput) searchInput.addEventListener('input', applyUserFilters);
     if (duplicateOnly) duplicateOnly.addEventListener('change', applyUserFilters);
 
-    document.addEventListener('click', (event) => {
-        const toggle = event.target.closest('[data-user-toggle]');
-        if (!toggle) return;
-        const detail = document.getElementById(toggle.dataset.userToggle);
-        if (!detail) return;
-        const opening = detail.hidden;
-        detail.hidden = !opening;
-        toggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
-        toggle.textContent = opening ? 'Đóng' : 'Quản lý';
-        if (opening) requestAnimationFrame(() => detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+    document.querySelectorAll('[data-user-toggle]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const detail = document.getElementById(button.dataset.userToggle);
+            if (!detail) return;
+            const opening = detail.hidden;
+            detail.hidden = !opening;
+            button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+            button.textContent = opening ? 'Đóng' : 'Quản lý';
+        });
     });
 
     const showPasswords = document.getElementById('showAdminPasswords');
     if (showPasswords) {
-        showPasswords.addEventListener('change', () => {
-            document.querySelectorAll('.admin-new-password').forEach((input) => {
+        showPasswords.addEventListener('change', function () {
+            document.querySelectorAll('.admin-new-password').forEach(function (input) {
                 input.type = showPasswords.checked ? 'text' : 'password';
             });
         });
     }
 
-    document.querySelectorAll('.temporary-password-input').forEach((input) => {
-        input.addEventListener('focus', () => { input.type = 'text'; });
-        input.addEventListener('blur', () => { input.type = 'password'; });
+    document.querySelectorAll('.temporary-password-input').forEach(function (input) {
+        input.addEventListener('focus', function () { input.type = 'text'; });
+        input.addEventListener('blur', function () { input.type = 'password'; });
     });
 
-    document.querySelectorAll('.admin-report-filter a').forEach((link) => {
-        link.addEventListener('click', () => {
-            link.classList.add('is-loading');
-            link.setAttribute('aria-busy', 'true');
+    document.querySelectorAll('.admin-permission-form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            const button = form.querySelector('.admin-save-permissions');
+            if (!button || button.disabled) return;
+            button.disabled = true;
+            button.classList.add('is-saving');
+            const label = button.querySelector('.admin-save-label');
+            if (label) label.textContent = 'Đang lưu...';
         });
     });
+})();
+
+(function () {
+    function loadLazyModule(tabName) {
+        const panel = document.querySelector('[data-admin-panel="' + tabName + '"]');
+        if (!panel) return;
+        panel.querySelectorAll('iframe[data-admin-lazy-src]').forEach(function (frame) {
+            if (frame.src) return;
+            frame.src = frame.dataset.adminLazySrc;
+        });
+    }
+    document.querySelectorAll('[data-admin-tab]').forEach(function (button) {
+        button.addEventListener('click', function () { loadLazyModule(button.dataset.adminTab); });
+    });
+    loadLazyModule(window.location.hash.replace('#', ''));
 })();

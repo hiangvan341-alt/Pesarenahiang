@@ -8,75 +8,10 @@ def register_routes(context):
     """Đăng ký nhóm route vào Flask app hiện tại."""
     globals().update(context)
 
-    @app.route("/admin/rank-modes", methods=["POST"])
-    @login_required
-    @admin_required
-    @admin_permission_required("system_features_manage")
-    def admin_save_rank_modes():
-        configs = get_rank_mode_configs()
-        int_fields = ("min_rp", "min_matches", "max_rp_gap", "pool_size", "bans_per_player", "ban_seconds", "pick_seconds")
-        rp_fields = ("win_2_0", "lose_0_2", "win_2_1", "lose_1_2", "forfeit_win", "forfeit_loss", "draw_1_1", "draw_all", "one_win_one_draw_win", "one_win_one_draw_loss", "win_both", "lose_both", "draw")
-        for code, mode in configs.items():
-            enabled_key = f"{code}__enabled"
-            if enabled_key in request.form:
-                mode["enabled"] = request.form.get(enabled_key) == "1"
-            for field in int_fields:
-                key = f"{code}__{field}"
-                if key in request.form:
-                    try: mode[field] = max(0, int(request.form.get(key) or 0))
-                    except (TypeError, ValueError): pass
-            rp = dict(mode.get("rp") or {})
-            for field in rp_fields:
-                key = f"{code}__rp__{field}"
-                if key in request.form:
-                    try: rp[field] = int(request.form.get(key) or 0)
-                    except (TypeError, ValueError): pass
-            mode["rp"] = rp
-        # Guard cấu hình Cấm/Chọn: pool phải đủ cho toàn bộ lượt cấm + tối đa 3 trận,
-        # mỗi trận cần 2 CLB mới vì CLB đã dùng không được dùng lại.
-        ban_pick = configs.get("ban_pick_bo3") or {}
-        bans_per_player = max(0, int(ban_pick.get("bans_per_player") or 3))
-        minimum_pool = bans_per_player * 2 + 6
-        ban_pick["pool_size"] = max(minimum_pool, int(ban_pick.get("pool_size") or minimum_pool))
-        ban_pick["ban_seconds"] = max(5, int(ban_pick.get("ban_seconds") or 30))
-        ban_pick["pick_seconds"] = max(5, int(ban_pick.get("pick_seconds") or 30))
-        configs["ban_pick_bo3"] = ban_pick
-        save_rank_mode_configs(configs)
-        flash("Đã lưu cấu hình 6 chế độ Rank.", "success")
-        return redirect(url_for("admin", tab="rank-modes") + "#rank-modes")
-
-    @app.route("/admin/rank-modes/user-unlocks/<user_id>", methods=["POST"])
-    @login_required
-    @admin_required
-    @admin_permission_required("users_edit")
-    def admin_save_user_rank_mode_unlocks(user_id):
-        user = get_user(user_id)
-        if not user:
-            flash("Không tìm thấy tài khoản.", "error")
-            return redirect(url_for("admin", tab="rank-modes") + "#rank-modes")
-        selected = [code for code in MODE_ORDER if request.form.get(f"mode__{code}") == "1"]
-        actor = current_user() or {}
-        save_user_rank_mode_unlocks(user_id, selected, actor.get("id"))
-        display_name = user.get("display_name") or user.get("username") or user_id
-        flash(f"Đã cập nhật quyền chế độ Rank cho {display_name}.", "success")
-        return redirect(url_for("admin", tab="users") + "#users")
-
     @app.route("/admin")
     @login_required
     @admin_required
     def admin():
-        admin_started_at = time.perf_counter()
-        allowed_admin_tabs = {"overview", "users", "passwords", "rooms", "matches", "match-report", "rank-modes", "test-data", "system", "economy", "rp-tools", "logs", "blackbox"}
-        active_admin_tab = str(request.args.get("tab") or "overview").strip().lower()
-        if active_admin_tab not in allowed_admin_tabs:
-            active_admin_tab = "overview"
-
-        needs_rooms = active_admin_tab == "rooms"
-        needs_matches = active_admin_tab == "matches"
-        needs_users = active_admin_tab in {"overview", "users", "system"}
-        needs_passwords = active_admin_tab in {"overview", "passwords"}
-        needs_rank_modes = active_admin_tab in {"users", "rank-modes", "system"}
-
         # Trang Admin chứa nhiều khối dữ liệu độc lập. Một truy vấn phụ lỗi không được
         # làm sập toàn bộ trang; khối lỗi sẽ tạm trả danh sách rỗng và ghi log Vercel.
         def admin_safe_load(label, loader, default):
@@ -87,71 +22,200 @@ def register_routes(context):
                 app.logger.exception("Admin load failed [%s]: %s", label, exc)
                 return default
 
-        all_rooms = admin_safe_load("rooms", list_rooms, []) if needs_rooms else []
+        all_rooms = admin_safe_load("rooms", list_rooms, [])
 
-        # Không thực hiện thao tác ghi/xóa dữ liệu trong request mở tab Admin.
-        # Bản cũ quét từng người chơi rồi gọi cleanup_duplicate_waiting_rooms(),
-        # tạo N+1 truy vấn Supabase và là nguyên nhân lớn khiến tab phản hồi rất chậm.
-
-        all_matches = admin_safe_load("matches", list_matches, []) if needs_matches else []
-
-        if active_admin_tab == "overview":
-            # Tổng quan chỉ cần số lượng/trạng thái. Không enrich toàn bộ phòng,
-            # không auto-confirm từng trận và không tải các cột lớn như rp_details.
-            all_rooms = admin_safe_load(
-                "overview_rooms",
-                lambda: execute_query(
-                    db.table("match_rooms").select("id,status,note").order("created_at", desc=True).limit(2000),
-                    "admin_overview_rooms",
-                    attempts=1,
-                ).data or [],
-                [],
+        # Dọn các phòng chờ bị nhân đôi do double-click hoặc nhiều Vercel instance
+        # xử lý đồng thời. Chỉ xóa waiting_ready chưa có match_id nên không ảnh hưởng
+        # trận đang đá, kết quả, RP hay tranh chấp.
+        duplicate_cleanup_count = 0
+        participant_ids = {
+            str(value)
+            for room in all_rooms
+            for value in (room.get("host_user_id"), room.get("guest_user_id"))
+            if value
+        }
+        for participant_id in participant_ids:
+            duplicate_cleanup_count += admin_safe_load(
+                f"cleanup_duplicate_rooms:{participant_id}",
+                lambda uid=participant_id: cleanup_duplicate_waiting_rooms(uid),
+                0,
             )
-            all_matches = admin_safe_load(
-                "overview_matches",
-                lambda: execute_query(
-                    db.table("matches").select("id,status").order("created_at", desc=True).limit(5000),
-                    "admin_overview_matches",
-                    attempts=1,
-                ).data or [],
-                [],
-            )
+        if duplicate_cleanup_count:
+            all_rooms = admin_safe_load("rooms_after_duplicate_cleanup", list_rooms, [])
 
-        # V1.3.34: Báo cáo là READ MODEL. Khi click chỉ SELECT các bảng đã tổng hợp
-        # trong Supabase; không đọc matches/rooms/series, không parse note/rp_details,
-        # không for qua user x mode trong request giao diện.
+        all_matches = admin_safe_load("matches", list_matches, [])
+
+        # Báo cáo số trận theo múi giờ Việt Nam. Dùng dữ liệu matches đã tải để
+        # tránh phát sinh thêm nhiều truy vấn và giữ kết quả thống nhất với tab Trận đấu.
+        from datetime import datetime, timedelta, timezone
+
+        vn_tz = timezone(timedelta(hours=7))
+        now_vn = datetime.now(vn_tz)
+        today_vn = now_vn.date()
         report_range = str(request.args.get("match_report_range") or "today").strip().lower()
+        allowed_ranges = {"today", "yesterday", "3days", "7days", "30days", "all"}
+        if report_range not in allowed_ranges:
+            report_range = "today"
+
+        report_range_labels = {
+            "today": "Hôm nay",
+            "yesterday": "Hôm qua",
+            "3days": "3 ngày gần đây",
+            "7days": "1 tuần",
+            "30days": "1 tháng",
+            "all": "Toàn thời gian",
+        }
+
+        if report_range == "today":
+            report_start_date = report_end_date = today_vn
+        elif report_range == "yesterday":
+            report_start_date = report_end_date = today_vn - timedelta(days=1)
+        elif report_range == "3days":
+            report_start_date, report_end_date = today_vn - timedelta(days=2), today_vn
+        elif report_range == "7days":
+            report_start_date, report_end_date = today_vn - timedelta(days=6), today_vn
+        elif report_range == "30days":
+            report_start_date, report_end_date = today_vn - timedelta(days=29), today_vn
+        else:
+            report_start_date = report_end_date = None
+
+        def _match_vn_date(match):
+            raw = (match or {}).get("created_at")
+            if not raw:
+                return None
+            try:
+                value = str(raw).strip().replace("Z", "+00:00")
+                parsed = datetime.fromisoformat(value)
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                return parsed.astimezone(vn_tz).date()
+            except Exception:
+                return None
+
+        report_matches = []
+        for match in all_matches:
+            match_date = _match_vn_date(match)
+            if match_date is None:
+                continue
+            if report_start_date and not (report_start_date <= match_date <= report_end_date):
+                continue
+            row = dict(match)
+            row["_report_date"] = match_date
+            report_matches.append(row)
+
+        report_status_keys = ("playing", "waiting_confirm", "waiting_result_confirm", "disputed", "confirmed", "cancelled")
+        report_status_counts = {key: 0 for key in report_status_keys}
+        report_unique_players = set()
+        report_confirmed_goals = 0
+        report_positive_rp = 0
+        report_mode_counts = {"rank_random": 0, "random3_pick1": 0}
+
+        # Khi kết quả được xác nhận, các phiên bản cũ ghi đè note của trận thành
+        # "Đã xác nhận.", làm mất dấu Random 3 chọn 1. Ưu tiên đọc team_tier
+        # của phòng liên kết để thống kê đúng cả các trận lịch sử đã bị mất note.
+        room_mode_by_match_id = {}
+        for room in all_rooms:
+            match_id = str((room or {}).get("match_id") or "").strip()
+            if not match_id:
+                continue
+            team_tier = str((room or {}).get("team_tier") or "").strip().lower()
+            room_mode_by_match_id[match_id] = team_tier
+
+        def _report_match_mode(match):
+            match = match or {}
+            match_id = str(match.get("id") or "").strip()
+            if room_mode_by_match_id.get(match_id) == "random3_pick1":
+                return "random3_pick1"
+
+            details = match.get("rp_details")
+            if isinstance(details, dict):
+                stored_mode = str(details.get("match_mode") or "").strip().lower()
+                if stored_mode == "random3_pick1":
+                    return "random3_pick1"
+
+            note = str(match.get("note") or "").casefold()
+            if "random 3 chọn 1" in note or "random3_pick1" in note:
+                return "random3_pick1"
+            return "rank_random"
+
+        for match in report_matches:
+            status = str(match.get("status") or "").strip().lower()
+            if status in report_status_counts:
+                report_status_counts[status] += 1
+            report_mode_counts[_report_match_mode(match)] += 1
+            for key in ("player1_id", "player2_id"):
+                if match.get(key):
+                    report_unique_players.add(str(match.get(key)))
+            if status == "confirmed":
+                report_confirmed_goals += int(match.get("score1") or 0) + int(match.get("score2") or 0)
+                report_positive_rp += max(0, int(match.get("delta1") or 0)) + max(0, int(match.get("delta2") or 0))
+
+        daily_map = {}
+        for match in report_matches:
+            day = match.get("_report_date")
+            if day is None:
+                continue
+            bucket = daily_map.setdefault(day, {
+                "date": day,
+                "total": 0,
+                "confirmed": 0,
+                "playing": 0,
+                "waiting": 0,
+                "disputed": 0,
+                "cancelled": 0,
+                "rank_random": 0,
+                "random3_pick1": 0,
+                "players": set(),
+            })
+            bucket["total"] += 1
+            bucket[_report_match_mode(match)] += 1
+            status = str(match.get("status") or "").strip().lower()
+            if status == "confirmed":
+                bucket["confirmed"] += 1
+            elif status == "playing":
+                bucket["playing"] += 1
+            elif status in {"waiting_confirm", "waiting_result_confirm"}:
+                bucket["waiting"] += 1
+            elif status == "disputed":
+                bucket["disputed"] += 1
+            elif status == "cancelled":
+                bucket["cancelled"] += 1
+            for key in ("player1_id", "player2_id"):
+                if match.get(key):
+                    bucket["players"].add(str(match.get(key)))
+
+        match_report_daily = []
+        for day in sorted(daily_map.keys(), reverse=True):
+            bucket = daily_map[day]
+            bucket["player_count"] = len(bucket.pop("players"))
+            bucket["date_label"] = day.strftime("%d/%m/%Y")
+            match_report_daily.append(bucket)
+
         match_report = {
             "range": report_range,
-            "range_label": "Hôm nay",
-            "range_labels": {
-                "today": "Hôm nay", "yesterday": "Hôm qua", "3days": "3 ngày gần đây",
-                "7days": "1 tuần", "30days": "1 tháng", "all": "Toàn thời gian",
-            },
-            "total": 0, "confirmed": 0, "playing": 0, "waiting": 0,
-            "disputed": 0, "cancelled": 0, "unique_players": 0,
-            "confirmed_goals": 0, "positive_rp": 0, "mode_rows": [],
-            "popular_mode": "Chưa có dữ liệu", "source": "empty",
+            "range_label": report_range_labels[report_range],
+            "range_labels": report_range_labels,
+            "total": len(report_matches),
+            "confirmed": report_status_counts.get("confirmed", 0),
+            "playing": report_status_counts.get("playing", 0),
+            "waiting": report_status_counts.get("waiting_confirm", 0) + report_status_counts.get("waiting_result_confirm", 0),
+            "disputed": report_status_counts.get("disputed", 0),
+            "cancelled": report_status_counts.get("cancelled", 0),
+            "unique_players": len(report_unique_players),
+            "confirmed_goals": report_confirmed_goals,
+            "positive_rp": report_positive_rp,
+            "rank_random": report_mode_counts["rank_random"],
+            "random3_pick1": report_mode_counts["random3_pick1"],
+            "rank_random_percent": round((report_mode_counts["rank_random"] * 100 / len(report_matches)), 1) if report_matches else 0,
+            "random3_pick1_percent": round((report_mode_counts["random3_pick1"] * 100 / len(report_matches)), 1) if report_matches else 0,
+            "popular_mode": (
+                "Random 3 chọn 1" if report_mode_counts["random3_pick1"] > report_mode_counts["rank_random"]
+                else "Rank Random" if report_mode_counts["rank_random"] > report_mode_counts["random3_pick1"]
+                else "Hai chế độ ngang nhau"
+            ),
         }
-        match_report_daily = []
-        report_matches = []
-        if active_admin_tab == "match-report":
-            cached_report = admin_safe_load(
-                "match_report_read_model",
-                lambda: load_match_report(report_range),
-                None,
-            )
-            if cached_report:
-                match_report, match_report_daily = cached_report
-            else:
-                # Không âm thầm quay lại cách cũ vì chính fallback đó làm tab treo hàng chục giây.
-                # Admin sẽ thấy hướng dẫn chạy migration thay vì request quét toàn lịch sử.
-                match_report["range"] = report_range if report_range in match_report["range_labels"] else "today"
-                match_report["range_label"] = match_report["range_labels"].get(match_report["range"], "Hôm nay")
-                match_report["source"] = "migration_required"
-                app.logger.warning("ADMIN_READ_MODEL migration_required tab=match-report")
 
-        raw_users = admin_safe_load("users", list_all_users, []) if needs_users else []
+        raw_users = admin_safe_load("users", list_all_users, [])
         admin_users = admin_safe_load(
             "decorate_users", lambda: decorate_admin_users(raw_users), []
         )
@@ -168,10 +232,10 @@ def register_routes(context):
 
         password_reset_requests = admin_safe_load(
             "password_resets", lambda: list_password_reset_requests("pending"), []
-        ) if needs_passwords else []
+        )
         raw_disputes = admin_safe_load(
             "match_disputes", lambda: list_match_disputes("pending"), []
-        ) if active_admin_tab in {"overview", "matches"} else []
+        )
         pending_disputes = []
         for item in raw_disputes:
             try:
@@ -181,14 +245,11 @@ def register_routes(context):
 
         audit_logs = (
             admin_safe_load("audit_logs", list_admin_activity_logs, [])
-            if active_admin_tab == "logs" and is_owner_user(current_user()) else []
+            if is_owner_user(current_user()) else []
         )
-        blackbox_incidents = admin_safe_load("blackbox_incidents", lambda: blackbox_list_incidents(120), []) if active_admin_tab == "blackbox" else []
-        blackbox_stats = blackbox_summary(blackbox_incidents) if active_admin_tab == "blackbox" else {"total": 0, "open": 0, "critical": 0, "error": 0, "warning": 0}
-        blackbox_cfg = blackbox_config() if active_admin_tab == "blackbox" else {"enabled": False}
         duplicate_ip_groups = admin_safe_load(
             "duplicate_ips", lambda: build_duplicate_ip_groups(admin_users), []
-        ) if active_admin_tab in {"overview", "users"} else []
+        )
         duplicate_ip_user_count = len({
             str(account.get("id"))
             for group in duplicate_ip_groups
@@ -201,7 +262,7 @@ def register_routes(context):
         ip_device_status["account_ip_count"] = sum(1 for user in admin_users if user.get("known_ips"))
         ip_device_status["duplicate_group_count"] = len(duplicate_ip_groups)
 
-        rendered_admin = render_template(
+        return render_template(
             "admin.html",
             admin_users=admin_users,
             players=players,
@@ -221,13 +282,10 @@ def register_routes(context):
                 )
             ][:30],
             all_rooms=all_rooms[:80],
-            invites=admin_safe_load("invites", lambda: list_invites("pending"), []) if active_admin_tab in {"overview", "rooms"} else [],
-            active_announcement=admin_safe_load("announcement", get_active_announcement, None) if active_admin_tab in {"overview", "system"} else None,
+            invites=admin_safe_load("invites", lambda: list_invites("pending"), []),
+            active_announcement=admin_safe_load("announcement", get_active_announcement, None),
             password_reset_requests=password_reset_requests,
             audit_logs=audit_logs,
-            blackbox_incidents=blackbox_incidents,
-            blackbox_summary=blackbox_stats,
-            blackbox_config=blackbox_cfg,
             duplicate_ip_groups=duplicate_ip_groups,
             duplicate_ip_user_count=duplicate_ip_user_count,
             ip_device_status=ip_device_status,
@@ -237,25 +295,10 @@ def register_routes(context):
             admin_permission_groups=ADMIN_PERMISSION_GROUPS,
             admin_permission_labels=ADMIN_PERMISSION_LABELS,
             current_admin_permissions=_admin_permissions(current_user()),
-            system_features=admin_safe_load("system_features", get_system_features, dict(SYSTEM_FEATURE_DEFAULTS)) if active_admin_tab == "system" else dict(SYSTEM_FEATURE_DEFAULTS),
-            maintenance_config=admin_safe_load("maintenance_config", get_maintenance_config, _maintenance_default_config()) if active_admin_tab == "system" else _maintenance_default_config(),
-            maintenance_status=admin_safe_load("maintenance_status", get_maintenance_status, {"closed": False, "countdown": None}) if active_admin_tab == "system" else {"closed": False, "countdown": None},
+            system_features=admin_safe_load("system_features", get_system_features, dict(SYSTEM_FEATURE_DEFAULTS)),
+            maintenance_config=admin_safe_load("maintenance_config", get_maintenance_config, _maintenance_default_config()),
+            maintenance_status=admin_safe_load("maintenance_status", get_maintenance_status, {"closed": False, "countdown": None}),
             match_report=match_report,
             match_report_daily=match_report_daily,
-            rank_mode_configs=admin_safe_load("rank_mode_configs", get_rank_mode_configs, {}) if needs_rank_modes else {},
-            rank_mode_order=MODE_ORDER,
-            rank_mode_user_unlocks=admin_safe_load("rank_mode_user_unlocks", list_rank_mode_user_unlocks, {}) if active_admin_tab == "users" else {},
-            active_admin_tab=active_admin_tab,
         )
-        app.logger.info(
-            "ADMIN_PERF tab=%s range=%s duration_ms=%d rooms=%d matches=%d users=%d report_matches=%d",
-            active_admin_tab,
-            report_range,
-            int((time.perf_counter() - admin_started_at) * 1000),
-            len(all_rooms),
-            len(all_matches),
-            len(raw_users),
-            len(report_matches),
-        )
-        return rendered_admin
 

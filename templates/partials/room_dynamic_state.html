@@ -19,6 +19,7 @@
 {% if room_action_message %}<div class="flash {{ room_action_category or 'success' }} room-htmx-message">{{ room_action_message }}</div>{% endif %}
 <div class="room-view-shell">
     <div class="room-stage-topbar panel">
+        <img class="room-stage-arena-logo" src="https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/pes-arena-room-logo.webp" alt="PES Arena" loading="eager">
         <div class="room-stage-title-wrap">
             <div>
                 <h1 class="room-stage-title">PHÒNG ĐẤU <span class="room-code-badge">#{{ room.room_code }}</span></h1>
@@ -29,7 +30,7 @@
 
     <div class="room-match-shell">
         <section class="room-side-card room-team-card home">
-            <img class="room-rank-frame-bg" src="{{ asset_url('ranks/' ~ room.host_rank_info.slug ~ '-card.webp') }}" alt="Khung rank {{ room.host_rank_info.name }}" loading="lazy" aria-hidden="true">
+            <img class="room-rank-frame-bg" src="{{ url_for('static', filename='rank_frames/' ~ room.host_rank_info.slug ~ '.png') }}" alt="Khung rank {{ room.host_rank_info.name }}" loading="lazy" aria-hidden="true">
             <div class="room-player-heading-plain">
                 {{ player_avatar(name=room.host_name, avatar_url=room.host_avatar_url, achievement=room.host_achievement, size='md', extra_class='room-frame-avatar', frame=room.host_avatar_frame) }}
                 <div class="room-player-name {{ room.host_name_style_class or '' }}">{{ room.host_name }}</div>
@@ -38,13 +39,6 @@
                     <span>{{ room.host_rank_info.name }}</span>
                 </div>
             </div>
-            {% if selected_rank_mode == 'random3_pick1' %}
-            <div class="club-selection-title" aria-label="Chọn 1 trong 3 câu lạc bộ">
-                <span class="title-diamond" aria-hidden="true"></span>
-                <span class="club-selection-title-text">CHỌN 1 TRONG 3</span>
-                <span class="title-diamond" aria-hidden="true"></span>
-            </div>
-            {% endif %}
             <div class="room-card-club-area">
                 {% if room.host_team_logo_url %}<img class="room-club-logo-large" src="{{ room.host_team_logo_url }}" alt="Logo {{ room.host_team or 'CLB' }}" loading="lazy" onerror="this.onerror=null;const p=document.createElement('div');p.className='room-team-placeholder-shield';p.textContent='?';this.replaceWith(p);">{% else %}<div class="room-team-placeholder-shield">?</div>{% endif %}
                 <div class="room-team-name-lg">{{ room.host_team or 'CHƯA CHỌN ĐỘI' }}</div>
@@ -133,10 +127,7 @@
                             </form>
                             <details class="room-result-dispute">
                                 <summary class="room-result-btn disagree">× Không Đồng Ý</summary>
-                                <form class="dispute-form room-result-dispute-form room-action-confirm-form" method="post" action="{{ url_for('room_dispute_result', room_id=room.id) }}" enctype="multipart/form-data"
-                                      data-modal-tone="warning" data-modal-icon="⚠" data-modal-title="Gửi tranh chấp?"
-                                      data-modal-message="Trận sẽ tạm thời chưa được tính điểm và được chuyển tới Admin xử lý."
-                                      data-modal-note="CHỜ ADMIN XỬ LÝ" data-modal-confirm-label="Gửi tranh chấp">
+                                <form class="dispute-form room-result-dispute-form" method="post" action="{{ url_for('room_dispute_result', room_id=room.id) }}" enctype="multipart/form-data" onsubmit="return confirm('Gửi tranh chấp cho Admin? Trận sẽ chưa được tính điểm.');">
                                     <label>Lý do tranh chấp</label>
                                     <select name="reason_code" required>
                                         <option value="">-- Chọn lý do --</option>
@@ -213,34 +204,37 @@
                 {% elif room.status == 'confirmed' %}
                     <div class="room-center-state-pill">Đang đồng bộ phòng...</div>
                 {% else %}
-                    <img class="room-center-vs-image" src="{{ asset_url('vs.webp') }}" alt="VS" loading="eager">
+                    <img class="room-center-vs-image" src="https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/VS.webp" alt="VS" loading="eager">
                     {% if room.status == 'waiting_ready' %}
                         {% if (room_room_viewer_is_host or current_user.role == 'admin') and room.guest_ready and not daily_rank_limit_blocked %}
-                        <form class="room-center-random-form {% if selected_rank_mode in ['home_away','bo3','tactical_bo3','ban_pick_bo3'] %}series-primary-form{% endif %}" method="post" action="{% if selected_rank_mode == 'random3_pick1' %}{{ url_for('room_start_random3_friendly', room_id=room.id) }}{% elif selected_rank_mode in ['home_away','bo3','tactical_bo3','ban_pick_bo3'] %}{{ url_for('room_series_start_next_game', room_id=room.id) }}{% else %}{{ url_for('room_random_teams', room_id=room.id) }}{% endif %}" data-room-async="1" onsubmit="const b=this.querySelector('button'); b.disabled=true; b.classList.add('loading');">
+                        <form class="room-center-random-form" method="post" action="{{ url_for('room_random_teams', room_id=room.id) }}" data-room-async="1" onsubmit="const b=this.querySelector('button'); b.disabled=true; b.classList.add('loading');">
                             <input type="hidden" name="match_mode" value="ranked">
-                            <button class="room-center-random-trigger arena-btn is-gold" type="submit">
+                            <button class="room-center-random-trigger" type="submit">
                                 <span class="room-center-random-title room-random-button-label">QUAY RANDOM ĐỘI</span>
                                 <span class="room-center-random-sub">Nhấn để đổi đội ngẫu nhiên cho cả hai bên</span>
                             </button>
                         </form>
                         {% else %}
-                        {# Readiness is shown once on the guest player card. #}
+                        <div class="room-center-random-trigger disabled">
+                            <span class="room-center-random-title room-random-button-label">{% if room_viewer_is_guest %}ĐỢI QUAY RANDOM ĐỘI{% elif not room.guest_ready %}ĐỢI KHÁCH SẴN SÀNG{% else %}QUAY RANDOM ĐỘI{% endif %}</span>
+                            <span class="room-center-random-sub">{% if room_viewer_is_guest %}Đang chờ chủ phòng quay đội{% elif not room.guest_ready %}Khách chưa sẵn sàng{% else %}Đang chờ chủ phòng quay đội{% endif %}</span>
+                        </div>
                         {% endif %}
                     {% else %}
                         <div class="room-center-state-pill">{{ room.status|replace('_',' ')|title }}</div>
                     {% endif %}
                 {% endif %}
             {% else %}
-                <img class="room-center-vs-image" src="{{ asset_url('vs.webp') }}" alt="VS" loading="eager">
+                <img class="room-center-vs-image" src="https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/VS.webp" alt="VS" loading="eager">
                 <div class="room-center-empty-note">Đang chờ đủ 2 người trong phòng</div>
             {% endif %}
         </section>
 
         <section class="room-side-card room-team-card away">
             {% if room.has_guest and room.guest_rank_info %}
-            <img class="room-rank-frame-bg" src="{{ asset_url('ranks/' ~ room.guest_rank_info.slug ~ '-card.webp') }}" alt="Khung rank {{ room.guest_rank_info.name }}" loading="lazy" aria-hidden="true">
+            <img class="room-rank-frame-bg" src="{{ url_for('static', filename='rank_frames/' ~ room.guest_rank_info.slug ~ '.png') }}" alt="Khung rank {{ room.guest_rank_info.name }}" loading="lazy" aria-hidden="true">
             {% else %}
-            <img class="room-rank-frame-bg muted" src="{{ asset_url('ranks/ga-card.webp') }}" alt="Khung chờ người chơi" loading="lazy" aria-hidden="true">
+            <img class="room-rank-frame-bg muted" src="{{ url_for('static', filename='rank_frames/ga.png') }}" alt="Khung chờ người chơi" loading="lazy" aria-hidden="true">
             {% endif %}
             <div class="room-player-heading-plain">
                 {{ player_avatar(name=room.guest_name, avatar_url=room.guest_avatar_url, achievement=room.guest_achievement, size='md', extra_class='room-frame-avatar', frame=room.guest_avatar_frame) }}
@@ -259,13 +253,6 @@
                 </div>
                 {% endif %}
             </div>
-            {% if selected_rank_mode == 'random3_pick1' %}
-            <div class="club-selection-title" aria-label="Chọn 1 trong 3 câu lạc bộ">
-                <span class="title-diamond" aria-hidden="true"></span>
-                <span class="club-selection-title-text">CHỌN 1 TRONG 3</span>
-                <span class="title-diamond" aria-hidden="true"></span>
-            </div>
-            {% endif %}
             <div class="room-card-club-area">
                 {% if room.guest_team_logo_url %}<img class="room-club-logo-large" src="{{ room.guest_team_logo_url }}" alt="Logo {{ room.guest_team or 'CLB' }}" loading="lazy" onerror="this.onerror=null;const p=document.createElement('div');p.className='room-team-placeholder-shield';p.textContent='?';this.replaceWith(p);">{% else %}<div class="room-team-placeholder-shield">?</div>{% endif %}
                 <div class="room-team-name-lg">{{ room.guest_team or 'CHƯA CHỌN ĐỘI' }}</div>
@@ -395,10 +382,7 @@
         <p class="small">Chờ chủ phòng kết thúc giao hữu để quay trận tiếp theo.</p>
         {% endif %}
         {% if room_viewer_is_guest %}
-        <form class="inline-form room-action-confirm-form" method="post" action="{{ url_for('room_leave', room_id=room.id) }}"
-              data-modal-tone="safe" data-modal-icon="🚪" data-modal-title="Thoát giao hữu"
-              data-modal-message="Bạn có thể rời trận giao hữu mà không bị trừ RP và không lưu lịch sử."
-              data-modal-note="KHÔNG TRỪ RP" data-modal-confirm-label="Thoát phòng">
+        <form class="inline-form" method="post" action="{{ url_for('room_leave', room_id=room.id) }}" onsubmit="return confirm('Thoát trận giao hữu? Bạn sẽ không bị trừ RP.');">
             <button class="btn red" type="submit">🚪 Thoát Phòng</button>
         </form>
         <p class="small">Giao hữu không tính RP. Bạn có thể thoát phòng an toàn.</p>
@@ -412,10 +396,7 @@
 
     {% if room.status == "playing" and room_viewer_is_guest %}
     <div class="guest-forfeit-box">
-        <form class="inline-form room-action-confirm-form" method="post" action="{{ url_for('room_guest_forfeit', room_id=room.id) }}"
-              data-modal-tone="danger" data-modal-icon="⚠" data-modal-title="Xác nhận bỏ cuộc"
-              data-modal-message="Trận đã bắt đầu. Thoát phòng lúc này được tính là bỏ cuộc."
-              data-modal-note="−20 RP" data-modal-confirm-label="Bỏ cuộc và thoát">
+        <form class="inline-form" method="post" action="{{ url_for('room_guest_forfeit', room_id=room.id) }}" onsubmit="return confirm('Bạn xác nhận Bỏ Cuộc và - 20 RP?');">
             <button class="btn red" type="submit">🚪 Thoát Phòng</button>
         </form>
         <p class="small danger-text">Thoát phòng sau khi đã quay đội được tính là bỏ cuộc và bị trừ 20 RP.</p>
@@ -492,10 +473,7 @@
         {% endif %}
         <p class="small">Hai người có thể về sảnh và tiếp tục sử dụng app. Trận này chỉ được tính điểm sau khi Admin xử lý.</p>
         {% if room.dispute and current_user.id == room.dispute.raised_by_id %}
-        <form class="inline-form room-action-confirm-form" method="post" action="{{ url_for('room_withdraw_dispute', room_id=room.id) }}"
-              data-modal-tone="warning" data-modal-icon="↩" data-modal-title="Rút tranh chấp?"
-              data-modal-message="Bạn sẽ chấp nhận tỷ số ban đầu và điểm rank được cập nhật ngay."
-              data-modal-note="XÁC NHẬN KẾT QUẢ" data-modal-confirm-label="Rút tranh chấp">
+        <form class="inline-form" method="post" action="{{ url_for('room_withdraw_dispute', room_id=room.id) }}" onsubmit="return confirm('Rút tranh chấp và chấp nhận tỷ số ban đầu? Điểm rank sẽ được cập nhật ngay.');">
             <button class="btn green" type="submit">↩️ Rút tranh chấp và chấp nhận kết quả</button>
         </form>
         {% endif %}

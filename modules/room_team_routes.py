@@ -31,11 +31,7 @@ def register_routes(context):
         if decode_friendly_random3_state(room.get("note")):
             flash("Phòng đang ở bước Random 3 chọn 1. Hãy hoàn tất lựa chọn hiện tại.", "warning")
             return redirect(url_for("room_detail", room_id=room_id))
-        # V1.3.49: trận con Series có thể vừa được reset DB nhưng client vẫn giữ snapshot
-        # host_team/guest_team cũ trong một nhịp polling. Không chặn Series chỉ vì đội cũ;
-        # orchestrator tự kiểm tra match_id/status và sẽ ghi đè cặp đội của trận tiếp theo.
-        requested_mode = normalize_rank_mode_code(room.get("team_tier") or RANK_RANDOM)
-        if (room.get("match_id") or room.get("host_team") or room.get("guest_team")) and not is_series_mode(requested_mode):
+        if room.get("match_id") or room.get("host_team") or room.get("guest_team"):
             flash("Phòng đã được quay đội hoặc đã tạo trận.", "warning")
             return redirect(url_for("room_detail", room_id=room_id))
 
@@ -67,30 +63,7 @@ def register_routes(context):
 
         if match_mode == MATCH_MODE_RANKED:
             try:
-                selected_rank_mode = normalize_rank_mode_code(room.get("team_tier") or RANK_RANDOM)
-                selected_mode_config = get_rank_mode(selected_rank_mode) or {}
-                continuing_series = "__RANK_MODE_LOCKED__" in (room.get("note") or "") and is_series_mode(selected_rank_mode)
-                if not selected_mode_config.get("enabled", True):
-                    raise ValueError(f"Chế độ {selected_mode_config.get('label') or selected_rank_mode} đang tạm tắt.")
-                # V1.3.49: đây là endpoint tương thích ngược. UI Series phải gọi route
-                # /series/start-next-game, nhưng nếu polling/live-partial hoặc client cũ vẫn POST
-                # vào /random-teams thì dispatch sang bộ điều phối Series thay vì báo lỗi.
-                # Random 3 chọn 1 vẫn có route riêng.
-                if is_series_mode(selected_rank_mode):
-                    result = prepare_next_series_game(room)
-                    action = result.get("action")
-                    if action == "start_match":
-                        flash(f"Đã bắt đầu {result.get('label') or 'trận tiếp theo'}.", "success")
-                    elif action == "choose":
-                        flash("Đã tạo 3 CLB cho mỗi bên. Hai người hãy khóa lựa chọn.", "success")
-                    else:
-                        flash("Đã mở bước Cấm/Chọn CLB.", "success")
-                    return redirect(url_for("room_detail", room_id=room_id))
-                if selected_rank_mode != RANK_RANDOM:
-                    raise ValueError(f"Chế độ {selected_mode_config.get('label') or selected_rank_mode} không dùng luồng Quay quân Rank thường.")
-                assert_rank_mode_daily_quota(
-                    selected_rank_mode, host.get("id"), guest.get("id"), continuation=continuing_series
-                )
+                assert_can_start_ranked_match(host.get("id"), guest.get("id"))
             except ValueError as exc:
                 flash(str(exc), "warning")
                 return redirect(url_for("room_detail", room_id=room_id))
@@ -132,7 +105,6 @@ def register_routes(context):
                 db.table("matches").insert({
                     "player1_id": room["host_user_id"],
                     "player2_id": room["guest_user_id"],
-                    "mode_code": normalize_rank_mode_code(room.get("team_tier")),
                     "team1": result["team_a"],
                     "team2": result["team_b"],
                     "team1_overall": result["overall_a"],
@@ -163,7 +135,7 @@ def register_routes(context):
                     "guest_team_logo_url": result.get("logo_b") or None,
                     "host_team_league": result.get("league_a") or None,
                     "guest_team_league": result.get("league_b") or None,
-                    "team_tier": selected_rank_mode,
+                    "team_tier": SMART_RANDOM_MODE,
                     "match_mode": MATCH_MODE_RANKED,
                     "status": "playing",
                     "match_id": match["id"],
@@ -193,30 +165,21 @@ def register_routes(context):
         if "__RANK_MODE_LOCKED__" in (room.get("note") or ""):
             flash("Lượt đá tiếp giữ nguyên chế độ của trận trước, không cần chọn lại.", "warning")
             return redirect(url_for("room_detail", room_id=room_id))
-        active_series = get_room_series_context(room)
-        if active_series and active_series.get("active"):
-            flash("Series đang diễn ra nên không thể đổi chế độ giữa chừng.", "warning")
-            return redirect(url_for("room_detail", room_id=room_id))
-        selected_mode = normalize_rank_mode_code(request.form.get("rank_mode") or RANK_RANDOM)
-        host = get_user(room.get("host_user_id")) or {}
-        guest = get_user(room.get("guest_user_id")) if room.get("guest_user_id") else None
-        eligibility = rank_mode_eligibility_for_room(selected_mode, host, guest)
-        if not eligibility.get("eligible"):
-            flash("Không thể chọn chế độ: " + "; ".join(eligibility.get("reasons") or []), "warning")
-            return redirect(url_for("room_detail", room_id=room_id))
-        try:
-            # Quota là điều kiện cứng để mở một Series mới.
-            assert_rank_mode_daily_quota(selected_mode, host.get("id"), (guest or {}).get("id"))
-        except ValueError as exc:
-            flash("Không thể chọn chế độ: " + str(exc), "warning")
-            return redirect(url_for("room_detail", room_id=room_id))
-        mode_config = get_rank_mode(selected_mode)
-        label = mode_config.get("label") or selected_mode
-        selected_legacy_tier = legacy_team_tier_for_mode(selected_mode)
+        selected_mode = (request.form.get("rank_mode") or SMART_RANDOM_MODE).strip()
+        if not system_feature_enabled("rank_standard_enabled"):
+            selected_mode = FRIENDLY_RANDOM3_MODE
+        if selected_mode == FRIENDLY_RANDOM3_MODE:
+            if not system_feature_enabled("friendly_random3_enabled"):
+                flash("Chế độ Random 3 chọn 1 đang tạm tắt.", "warning")
+                return redirect(url_for("room_detail", room_id=room_id))
+            label = "Random 3 chọn 1"
+        else:
+            selected_mode = SMART_RANDOM_MODE
+            label = "Rank thường"
         execute_query(
             db.table("match_rooms").update({
                 "match_mode": MATCH_MODE_RANKED,
-                "team_tier": selected_legacy_tier,
+                "team_tier": selected_mode,
                 "friendly_tier": None,
                 "note": f"Chủ phòng đã chọn chế độ {label}. Chờ khách Sẵn sàng.",
                 "updated_at": now_iso(),
@@ -243,7 +206,7 @@ def register_routes(context):
         host = get_user(room.get("host_user_id"))
         guest = get_user(room.get("guest_user_id"))
         try:
-            assert_rank_mode_daily_quota(RANDOM3_PICK1, room.get("host_user_id"), room.get("guest_user_id"), continuation=False)
+            assert_can_start_ranked_match(room.get("host_user_id"), room.get("guest_user_id"))
         except ValueError as exc:
             flash(str(exc), "warning")
             return redirect(url_for("room_detail", room_id=room_id))
@@ -284,7 +247,7 @@ def register_routes(context):
         match = None
         if state.get("host_choice") is not None and state.get("guest_choice") is not None:
             try:
-                assert_rank_mode_daily_quota(RANDOM3_PICK1, room.get("host_user_id"), room.get("guest_user_id"), continuation=False)
+                assert_can_start_ranked_match(room.get("host_user_id"), room.get("guest_user_id"))
             except ValueError as exc:
                 flash(str(exc), "warning")
                 return redirect(url_for("room_detail", room_id=room_id))
@@ -294,7 +257,6 @@ def register_routes(context):
                 db.table("matches").insert({
                     "player1_id": room["host_user_id"],
                     "player2_id": room["guest_user_id"],
-                    "mode_code": "random3_pick1",
                     "team1": h["name"],
                     "team2": g["name"],
                     "team1_overall": h["overall"],

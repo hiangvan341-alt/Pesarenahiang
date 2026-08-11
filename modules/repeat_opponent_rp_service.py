@@ -201,11 +201,20 @@ def apply_repeat_opponent_rules(
         return 0, 0, details
 
     if int(score1) == int(score2):
-        # RP hòa đã được random +1..+6 ở rp_engine. Không tính lại ở lớp chống farm,
-        # nếu không một cú click xác nhận có thể đổi kết quả random lần thứ hai.
+        # Trận hòa vẫn tính trong giới hạn đối đầu; chỉ các trận thứ 7 trở đi mới nhận 0 RP.
         details["streak_eligible"] = True
-        details["draw_bonus_applied"] = bool((int(delta1) == 0) != (int(delta2) == 0))
-        details["draw_random_applied"] = True
+        rp1 = int(player1.get("rank_points") or 0)
+        rp2 = int(player2.get("rank_points") or 0)
+        if abs(rp1 - rp2) >= 500:
+            if rp1 < rp2:
+                delta1, delta2 = 6, 0
+            elif rp2 < rp1:
+                delta1, delta2 = 0, 6
+            else:
+                delta1, delta2 = 3, 3
+            details["draw_bonus_applied"] = bool(delta1 == 6 or delta2 == 6)
+        else:
+            delta1, delta2 = 3, 3
         details["reason"] = "draw"
         return int(delta1), int(delta2), details
 

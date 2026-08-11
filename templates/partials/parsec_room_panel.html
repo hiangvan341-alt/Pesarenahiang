@@ -18,14 +18,16 @@
             {% endif %}
         </div>
 
-        <div class="parsec-room-block parsec-room-link-block">
+        <div class="parsec-room-block">
             <div class="parsec-room-label">Link Parsec</div>
-            <form class="parsec-room-link-form parsec-room-link-inline" method="post" action="{{ url_for('update_room_parsec_link', room_id=room.id) }}">
+            <form class="parsec-room-link-form" method="post" action="{{ url_for('update_room_parsec_link', room_id=room.id) }}">
                 <input type="url" name="parsec_link" value="{{ parsec_room.room_link or '' }}" maxlength="500" placeholder="https://parsec.gg/g/..." aria-label="Link Parsec tạm thời">
-                <button class="parsec-action-btn parsec-save-btn" type="submit">Lưu</button>
-                {% if parsec_room.room_link %}
-                <button class="parsec-action-btn parsec-delete-btn" type="submit" name="parsec_link" value="">Xóa</button>
-                {% endif %}
+                <div class="parsec-room-actions">
+                    <button class="parsec-action-btn parsec-save-btn" type="submit">Lưu</button>
+                    {% if parsec_room.room_link %}
+                    <button class="parsec-action-btn parsec-delete-btn" type="submit" name="parsec_link" value="">Xóa</button>
+                    {% endif %}
+                </div>
             </form>
         </div>
 

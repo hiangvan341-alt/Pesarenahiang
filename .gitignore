@@ -19,6 +19,3 @@ venv/
 private/
 backups/
 user_data/
-# Runtime diagnostics
-logs/*.log
-logs/*.log.*

@@ -14,11 +14,10 @@
     <div class="admin-heading-actions">
         <a class="btn gray" href="{{ url_for('dashboard') }}">⌂ Trang người chơi</a>
         <a class="btn" href="{{ url_for('admin_luckybox') }}">🎁 Quản trị Lucky Box</a>
-        {% if can_admin('system_features_manage') or can_admin('announcements_manage') or can_admin('daily_rank_limits_manage') %}<a class="btn" href="{{ url_for('admin', tab='system') }}#system">⚙ Cài đặt hệ thống</a>{% endif %}
+        {% if can_admin('system_features_manage') or can_admin('announcements_manage') or can_admin('daily_rank_limits_manage') %}<a class="btn" href="#system">⚙ Cài đặt hệ thống</a>{% endif %}
     </div>
 </div>
 
-{% if active_admin_tab == 'overview' %}
 <section class="admin-metric-grid" aria-label="Thống kê nhanh">
     <article class="admin-metric-card metric-purple">
         <div class="metric-icon">👥</div><div><span>Tổng người chơi</span><strong>{{ players|length }}</strong>{% if can_admin('users_approve') %}<small>{{ pending_users|length }} tài khoản chờ duyệt</small>{% endif %}</div>
@@ -33,25 +32,856 @@
         <div class="metric-icon">🔑</div><div><span>Cần xử lý</span><strong>{{ password_reset_requests|length }}</strong><small>Yêu cầu quên mật khẩu</small></div>
     </article>
 </section>
-{% endif %}
 
 <div class="admin-tabs" role="tablist" aria-label="Khu vực quản trị">
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'overview' else '' }}" type="button" data-admin-tab="overview" data-admin-url="{{ url_for('admin', tab='overview') }}#overview">📌 Tổng quan</button>
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'users' else '' }}" type="button" data-admin-tab="users" data-admin-url="{{ url_for('admin', tab='users') }}#users">👥 Quản lý danh sách user{% if duplicate_ip_groups %} · ⚠️ {{ duplicate_ip_groups|length }} IP trùng{% endif %}</button>
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'passwords' else '' }}" type="button" data-admin-tab="passwords" data-admin-url="{{ url_for('admin', tab='passwords') }}#passwords">🔑 Quên mật khẩu{% if password_reset_requests %} ({{ password_reset_requests|length }}){% endif %}</button>
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'rooms' else '' }}" type="button" data-admin-tab="rooms" data-admin-url="{{ url_for('admin', tab='rooms') }}#rooms">🚪 Phòng & lời mời</button>
-    {% if can_admin('matches_view') %}<button class="admin-tab-button{{ ' active' if active_admin_tab == 'matches' else '' }}" type="button" data-admin-tab="matches" data-admin-url="{{ url_for('admin', tab='matches') }}#matches">🎮 Trận đấu</button><button class="admin-tab-button{{ ' active' if active_admin_tab == 'match-report' else '' }}" type="button" data-admin-tab="match-report" data-admin-url="{{ url_for('admin', tab='match-report') }}#match-report">📊 Báo cáo trận đấu</button>{% endif %}
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'rank-modes' else '' }}" type="button" data-admin-tab="rank-modes" data-admin-url="{{ url_for('admin', tab='rank-modes') }}#rank-modes">🏆 Quản lý chế độ Rank</button>
-{% if can_create_test_account or can_import_accounts_csv %}<button class="admin-tab-button{{ ' active' if active_admin_tab == 'test-data' else '' }}" type="button" data-admin-tab="test-data" data-admin-url="{{ url_for('admin', tab='test-data') }}#test-data">🧪 Tài khoản test & Import</button>{% endif %}
-    {% if can_admin('system_features_manage') or can_admin('announcements_manage') or can_admin('daily_rank_limits_manage') %}<button class="admin-tab-button{{ ' active' if active_admin_tab == 'system' else '' }}" type="button" data-admin-tab="system" data-admin-url="{{ url_for('admin', tab='system') }}#system">⚙️ Hệ thống</button>{% endif %}
-    {% if can_admin('rp_view') %}<button class="admin-tab-button{{ ' active' if active_admin_tab == 'rp-tools' else '' }}" type="button" data-admin-tab="rp-tools" data-admin-url="{{ url_for('admin', tab='rp-tools') }}#rp-tools">📈 Công cụ RP</button>{% endif %}
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'economy' else '' }}" type="button" data-admin-tab="economy" data-admin-url="{{ url_for('admin', tab='economy') }}#economy">🪙 Zcoin & Gift Code</button>
-    {% if can_admin('admin_logs_view') %}<button class="admin-tab-button{{ ' active' if active_admin_tab == 'logs' else '' }}" type="button" data-admin-tab="logs" data-admin-url="{{ url_for('admin', tab='logs') }}#logs">🧾 Nhật ký</button>{% endif %}
-    <button class="admin-tab-button{{ ' active' if active_admin_tab == 'blackbox' else '' }}" type="button" data-admin-tab="blackbox" data-admin-url="{{ url_for('admin', tab='blackbox') }}#blackbox">🛡 Black Box</button>
+    <button class="admin-tab-button" type="button" data-admin-tab="overview">📌 Tổng quan</button>
+    <button class="admin-tab-button" type="button" data-admin-tab="users">👥 Quản lý danh sách user{% if duplicate_ip_groups %} · ⚠️ {{ duplicate_ip_groups|length }} IP trùng{% endif %}</button>
+    <button class="admin-tab-button" type="button" data-admin-tab="passwords">🔑 Quên mật khẩu{% if password_reset_requests %} ({{ password_reset_requests|length }}){% endif %}</button>
+    <button class="admin-tab-button" type="button" data-admin-tab="rooms">🚪 Phòng & lời mời</button>
+    {% if can_admin('matches_view') %}<button class="admin-tab-button" type="button" data-admin-tab="matches">🎮 Trận đấu</button><button class="admin-tab-button" type="button" data-admin-tab="match-report">📊 Báo cáo trận đấu</button>{% endif %}
+{% if can_create_test_account or can_import_accounts_csv %}<button class="admin-tab-button" type="button" data-admin-tab="test-data">🧪 Tài khoản test & Import</button>{% endif %}
+    {% if can_admin('system_features_manage') or can_admin('announcements_manage') or can_admin('daily_rank_limits_manage') %}<button class="admin-tab-button" type="button" data-admin-tab="system">⚙️ Hệ thống</button>{% endif %}
+    {% if can_admin('rp_view') %}<button class="admin-tab-button" type="button" data-admin-tab="rp-tools">📈 Công cụ RP</button>{% endif %}
+    <button class="admin-tab-button" type="button" data-admin-tab="economy">🪙 Zcoin & Gift Code</button>
+    {% if can_admin('admin_logs_view') %}<button class="admin-tab-button" type="button" data-admin-tab="logs">🧾 Nhật ký</button>{% endif %}
 </div>
 
-{% set admin_tab_template = 'admin/tabs/' ~ active_admin_tab ~ '.html' %}
-{% include admin_tab_template %}
+<section class="admin-tab-panel" data-admin-panel="overview">
+    {% if duplicate_ip_groups %}
+    <div class="panel admin-clone-alert" role="alert">
+        <div>
+            <h2>⚠️ Cảnh báo tài khoản dùng chung IP</h2>
+            <p>Phát hiện <strong>{{ duplicate_ip_groups|length }} IP</strong> đang được dùng bởi <strong>{{ duplicate_ip_user_count }} tài khoản</strong>. Hãy kiểm tra trước khi duyệt hoặc xử lý dấu hiệu buff điểm.</p>
+            <p class="small">IP trùng chỉ là tín hiệu kiểm tra; người cùng nhà, quán game hoặc mạng công cộng cũng có thể dùng chung IP.</p>
+        </div>
+        <a class="btn red" href="#users">Kiểm tra danh sách IP trùng</a>
+    </div>
+    {% endif %}
+    {% if can_admin('users_approve') %}
+    <div class="panel admin-highlight">
+        <div class="admin-section-heading">
+            <div>
+                <h2>⏳ Tài khoản đang chờ duyệt</h2>
+                <p class="small">Kiểm tra tài khoản, Zalo và cảnh báo trùng IP trước khi duyệt.</p>
+            </div>
+            <span class="admin-count">{{ pending_users|length }}</span>
+        </div>
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead><tr><th>Tài khoản</th><th>Tên Zalo</th><th>IP đăng ký</th><th>Ngày đăng ký</th><th>Hành động</th></tr></thead>
+                <tbody>
+                {% for p in pending_users %}
+                <tr>
+                    <td><strong>{{ p.username }}</strong></td>
+                    <td>{{ p.zalo_name or '-' }}</td>
+                    <td>
+                        <code>{{ p.register_ip or '-' }}</code>
+                        {% if p.duplicate_ip_count %}
+                        <div><span class="badge danger">⚠️ Trùng {{ p.duplicate_ip_count }} tài khoản</span></div>
+                        {% endif %}
+                    </td>
+                    <td>{{ format_vn_datetime(p.created_at) }}</td>
+                    <td>
+                        <form class="inline-form" method="post" action="{{ url_for('admin_approve_account', user_id=p.id) }}">
+                            <button class="btn green" type="submit">Duyệt</button>
+                        </form>
+                        <form class="inline-form" method="post" action="{{ url_for('admin_reject_account', user_id=p.id) }}" onsubmit="return confirm('Từ chối tài khoản này?')">
+                            <input class="admin-reason-input" name="reason" placeholder="Lý do" maxlength="200">
+                            <button class="btn red" type="submit">Từ chối</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5">Không có tài khoản chờ duyệt.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="panel admin-team-panel">
+        <div class="admin-section-heading"><div><h2>🛡️ Đội ngũ quản trị</h2><p class="small">Trên giao diện, mọi tài khoản quản trị đều hiển thị chung là <strong>Admin</strong>.</p></div><span class="admin-count">{{ admins|length }}</span></div>
+        <div class="admin-team-grid">
+        {% for a in admins %}
+            <article class="admin-team-card">
+                <div class="admin-team-card-head"><div><strong>{{ a.username }}</strong><small>{{ a.zalo_name or '-' }}</small></div><span class="badge confirmed">Admin</span></div>
+                {% if current_user.admin_level == 'owner' and a.admin_level == 'admin' %}
+                <details><summary>Xem / chỉnh quyền</summary>
+                    <form method="post" action="{{ url_for('admin_update_permissions', user_id=a.id) }}" class="admin-permission-form">
+                    <div class="admin-permission-grid">
+                    {% for group, codes in admin_permission_groups.items() %}
+                        <fieldset><legend>{{ {'users':'Người dùng','matches':'Trận đấu','operations':'Vận hành','system':'Hệ thống','rp':'RP','economy':'Kinh tế Zcoin','permissions':'Phân quyền'}[group] }}</legend>
+                        {% for code in codes %}<label class="admin-permission-option"><span>{{ admin_permission_labels[code] }}</span><span class="admin-switch"><input type="checkbox" name="{{ code }}" value="1" {% if a.admin_permissions and a.admin_permissions.get(code) %}checked{% endif %}><span class="admin-switch-track"></span></span></label>{% endfor %}
+                        </fieldset>
+                    {% endfor %}
+                    </div><button class="btn green" type="submit">Lưu quyền</button></form>
+                    <form method="post" action="{{ url_for('admin_demote_user', user_id=a.id) }}" onsubmit="return confirm('Gỡ quyền Admin?')"><button class="btn red" type="submit">Gỡ quyền Admin</button></form>
+                </details>
+                {% else %}<span class="small">Toàn quyền quản trị</span>{% endif %}
+            </article>
+        {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+
+<section class="admin-tab-panel" data-admin-panel="passwords">
+    <div class="panel admin-highlight">
+        <div class="admin-section-heading">
+            <div>
+                <h2>🔑 Yêu cầu quên mật khẩu</h2>
+                <p class="small">Admin đặt mật khẩu tạm rồi gửi riêng cho user. Người dùng đổi lại trong phần Điều khiển hồ sơ sau khi đăng nhập.</p>
+            </div>
+            <span class="admin-count">{{ password_reset_requests|length }}</span>
+        </div>
+
+        <div class="password-reset-list">
+            {% for item in password_reset_requests %}
+            <article class="password-reset-card">
+                <div class="password-reset-info">
+                    <strong>{{ item.current_username }}</strong>
+                    <span class="badge pending">Đang chờ</span>
+                    <p>Tên Zalo: <strong>{{ item.current_zalo_name }}</strong></p>
+                    <p class="small">Gửi lúc {{ format_vn_datetime(item.created_at) }} • IP: <code>{{ item.requested_ip or '-' }}</code></p>
+                </div>
+                <div class="password-reset-actions">
+                    <form method="post" action="{{ url_for('admin_resolve_password_reset', request_id=item.id) }}" class="password-reset-form" onsubmit="return confirm('Cấp mật khẩu tạm cho tài khoản này?');">
+                        <input class="temporary-password-input" type="password" name="temporary_password" minlength="{{ minimum_password_length }}" placeholder="Nhập mật khẩu tạm" required autocomplete="new-password">
+                        <button class="btn green" type="submit">Cấp mật khẩu tạm</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin_reject_password_reset', request_id=item.id) }}" class="password-reset-form" onsubmit="return confirm('Từ chối yêu cầu này?');">
+                        <input name="note" maxlength="250" placeholder="Lý do từ chối (không bắt buộc)">
+                        <button class="btn red" type="submit">Từ chối</button>
+                    </form>
+                </div>
+            </article>
+            {% else %}
+            <p>Không có yêu cầu quên mật khẩu đang chờ.</p>
+            {% endfor %}
+        </div>
+        <p class="small">🔒 Hệ thống không lưu và không hiển thị lại mật khẩu tạm sau khi Admin bấm cấp.</p>
+    </div>
+</section>
+
+<section class="admin-tab-panel" data-admin-panel="users">
+    <div class="panel">
+        <div class="admin-section-heading admin-user-toolbar">
+            <div>
+                <h2>👥 Quản lý danh sách user</h2>
+                <p class="small">Bảng gọn để đối chiếu nhanh tài khoản, trạng thái và IP. Bấm <strong>Quản lý</strong> để sửa thông tin hoặc reset mật khẩu.</p>
+            </div>
+            <div class="admin-toolbar-actions">
+                <input id="adminUserSearch" type="search" placeholder="Tìm tài khoản, Zalo hoặc IP...">
+                <label class="admin-filter-toggle"><input id="adminDuplicateOnly" type="checkbox"> Chỉ hiện IP trùng</label>
+                <label class="admin-password-toggle"><input id="showAdminPasswords" type="checkbox"> Hiện mật khẩu mới</label>
+            </div>
+        </div>
+
+        <form method="post" action="{{ url_for('admin_update_duplicate_ip_warning') }}" class="admin-ip-settings-card">
+            <div>
+                <strong>🔎 Cảnh báo IP dùng chung</strong>
+                <p class="small">Tắt chỉ ẩn cảnh báo trên Admin; hệ thống vẫn lưu IP để đối chiếu khi cần.</p>
+            </div>
+            <label class="admin-filter-toggle"><input type="checkbox" name="enabled" value="1" {% if duplicate_ip_warning_config.enabled %}checked{% endif %}> Hiển thị cảnh báo IP</label>
+            <label class="admin-filter-toggle"><input type="checkbox" name="ignore_admin_managed" value="1" {% if duplicate_ip_warning_config.ignore_admin_managed %}checked{% endif %}> Bỏ qua Admin và tài khoản thử nghiệm</label>
+            <button class="btn gold" type="submit">Lưu thiết lập</button>
+        </form>
+
+        <div class="admin-ip-data-status {{ 'is-error' if ip_device_status.ok == false else 'is-ok' }}">
+            {% if ip_device_status.ok == false %}
+                <strong>⚠️ Không tải được lịch sử IP thiết bị.</strong>
+                <span>Bộ lọc hiện chỉ đối chiếu IP đăng ký. Hãy tải lại trang hoặc kiểm tra bảng <code>user_devices</code>/quyền Supabase.</span>
+                {% if ip_device_status.error %}<small>{{ ip_device_status.error }}</small>{% endif %}
+            {% else %}
+                <strong>✓ Dữ liệu IP đã tải</strong>
+                <span>{{ ip_device_status.row_count }} bản ghi thiết bị · {{ ip_device_status.account_ip_count }} tài khoản có IP · {{ ip_device_status.duplicate_group_count }} nhóm trùng</span>
+            {% endif %}
+            <button class="btn small" type="button" onclick="window.location.reload()">Tải lại IP</button>
+        </div>
+
+        {% if duplicate_ip_groups %}
+        <div class="admin-duplicate-alert" role="alert">
+            <div class="admin-duplicate-alert-title">
+                <strong>🚨 Phát hiện {{ duplicate_ip_groups|length }} nhóm IP trùng</strong>
+                <span>{{ duplicate_ip_user_count }} tài khoản cần đối chiếu</span>
+            </div>
+            <div class="admin-duplicate-groups">
+                {% for group in duplicate_ip_groups %}
+                <div class="admin-duplicate-group">
+                    <code>{{ group.ip }}</code>
+                    <span class="badge danger">{{ group.account_count }} tài khoản</span>
+                    <strong>{{ group.usernames|join(' ↔ ') }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="small">Không tự khóa chỉ vì trùng IP. Hãy đối chiếu thêm Zalo, lịch sử trận và hành vi cộng điểm.</p>
+        </div>
+        {% else %}
+        <div class="admin-no-duplicate">✅ Chưa phát hiện tài khoản nào dùng chung IP.</div>
+        {% endif %}
+
+        <div class="table-wrap admin-user-compare-wrap">
+            <table class="admin-user-compare-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tài khoản</th>
+                        <th>Tên / Zalo</th>
+                        <th>Trạng thái</th>
+                        <th>IP đăng ký</th>
+                        <th>IP gần nhất</th>
+                        <th>Đối chiếu IP</th>
+                        <th>Điểm / W-D-L</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="adminUserTableBody">
+                {% for p in admin_users %}
+                    {% set can_edit = (not (p.role == 'admin' or p.admin_level in ['owner', 'admin'])) or current_user.admin_level == 'owner' %}
+                    <tr class="admin-user-summary-row{% if p.duplicate_ip_warning_visible %} has-duplicate-ip{% endif %}"
+                        data-user-summary
+                        data-duplicate-ip="{{ 1 if p.duplicate_ip_detected else 0 }}"
+                        data-user-search="{{ (p.username ~ ' ' ~ (p.display_name or '') ~ ' ' ~ (p.zalo_name or '') ~ ' ' ~ (p.register_ip or '') ~ ' ' ~ (p.latest_ip or '') ~ ' ' ~ (p.duplicate_ip_accounts|join(' ')))|lower }}">
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ p.username }}</strong></td>
+                        <td>
+                            <strong>{{ p.display_name or p.username }}</strong><br>
+                            <span class="small">Zalo: {{ p.zalo_name or '-' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'gold' if p.role == 'admin' or p.admin_level in ['owner', 'admin'] else (p.account_status or 'approved') }}">
+                                {% if p.admin_level == 'owner' %}Admin{% elif p.admin_level == 'admin' %}Admin{% else %}{{ p.account_status or 'approved' }}{% endif %}
+                            </span>
+                        </td>
+                        <td><code class="admin-ip-code">{{ p.register_ip or '-' }}</code></td>
+                        <td><code class="admin-ip-code">{{ p.latest_ip or '-' }}</code></td>
+                        <td>
+                            {% if p.duplicate_ip_accounts %}
+                            <span class="badge {{ 'danger' if p.duplicate_ip_warning_visible else 'gold' }}">{{ '⚠️ Trùng IP' if p.duplicate_ip_warning_visible else 'Cùng IP' }}</span>
+                            <div class="admin-duplicate-with">{{ p.duplicate_ip_accounts|join(', ') }}</div>
+                            {% else %}
+                            <span class="admin-ip-safe">Không trùng</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ p.rank_points or 0 }} điểm</strong><br>
+                            <span class="small">{{ p.wins or 0 }}-{{ p.draws or 0 }}-{{ p.losses or 0 }}</span>
+                        </td>
+                        <td>
+                            <button class="btn admin-user-toggle" type="button" data-user-toggle="admin-user-detail-{{ p.id }}" aria-expanded="false">Quản lý</button>
+                        </td>
+                    </tr>
+                    <tr id="admin-user-detail-{{ p.id }}" class="admin-user-detail-row" data-user-detail hidden>
+                        <td colspan="9">
+                            <form method="post" action="{{ url_for('admin_update_player', user_id=p.id) }}" class="admin-user-compact-form">
+                                <div class="admin-user-edit-group">
+                                    <h3>Thông tin tài khoản</h3>
+                                    <label>Tài khoản<input name="username" value="{{ p.username }}" required {% if not can_edit %}disabled{% endif %}></label>
+                                    <label>Tên hiển thị<input name="display_name" value="{{ p.display_name or p.username }}" required {% if not can_edit %}disabled{% endif %}></label>
+                                    <label>Tên Zalo<input name="zalo_name" value="{{ p.zalo_name or '' }}" {% if not can_edit %}disabled{% endif %}></label>
+                                </div>
+
+                                <div class="admin-user-edit-group">
+                                    <h3>IP đã ghi nhận</h3>
+                                    <p><span class="small">IP đăng ký</span><br><code>{{ p.register_ip or '-' }}</code></p>
+                                    <p><span class="small">IP gần nhất</span><br><code>{{ p.latest_ip or '-' }}</code></p>
+                                    {% if p.known_ips %}
+                                    <p class="small">Tất cả IP: {{ p.known_ips|join(', ') }}</p>
+                                    {% endif %}
+                                    {% if p.duplicate_ip_accounts %}
+                                    <p class="admin-ip-warning">Trùng với: {{ p.duplicate_ip_accounts|join(', ') }}</p>
+                                    {% endif %}
+                                    <button class="btn {{ 'red' if p.duplicate_ip_trusted else 'gold' }} admin-ip-trust-form" type="submit"
+                                        name="trusted" value="{{ 0 if p.duplicate_ip_trusted else 1 }}"
+                                        formaction="{{ url_for('admin_toggle_duplicate_ip_trust', user_id=p.id) }}" formmethod="post">
+                                        {{ 'Bỏ tài khoản tin cậy' if p.duplicate_ip_trusted else 'Đánh dấu tài khoản tin cậy' }}
+                                    </button>
+                                    {% if p.duplicate_ip_trusted %}<p class="small admin-ip-safe">✓ Đang bỏ qua cảnh báo IP cho tài khoản này.</p>{% endif %}
+                                </div>
+
+                                <div class="admin-user-edit-group">
+                                    <h3>Mật khẩu và điểm</h3>
+                                    <label>Mật khẩu tạm mới
+                                        <input class="admin-new-password" type="password" name="new_password" minlength="{{ minimum_password_length }}" autocomplete="new-password" placeholder="Bỏ trống nếu không reset" {% if not can_edit %}disabled{% endif %}>
+                                    </label>
+                                    <label>Điểm rank<input name="rank_points" type="number" value="{{ p.rank_points or 0 }}" min="0" required {% if not can_edit %}disabled{% endif %}></label>
+                                    <label>Lý do cộng/trừ RP
+                                        <input name="rp_adjustment_reason" maxlength="200" placeholder="Ví dụ: Thưởng giải đấu, bù RP do lỗi hệ thống..." {% if not can_edit %}disabled{% endif %}>
+                                    </label>
+                                    <p class="small">Chỉ bắt buộc nhập khi thay đổi điểm RP. Người chơi sẽ nhận thông báo ngay trên tài khoản.</p>
+                                    <p class="small">Ngày tạo: {{ format_vn_datetime(p.created_at) }}</p>
+                                </div>
+
+                                <div class="admin-user-edit-save">
+                                    {% if can_edit %}
+                                    <button class="btn green" type="submit">💾 Lưu thay đổi</button>
+                                    {% else %}
+                                    <span class="small">Chỉ Admin được sửa tài khoản Admin.</span>
+                                    {% endif %}
+                                </div>
+                            </form>
+
+                            {% if p.role == 'player' %}
+                            <div class="admin-user-actions admin-user-actions-compact">
+                                {% if p.account_status == 'banned' %}
+                                <form class="inline-form" method="post" action="{{ url_for('admin_unban_account', user_id=p.id) }}"><button class="btn green" type="submit">Mở khóa</button></form>
+                                {% elif p.account_status == 'approved' %}
+                                <form class="inline-form" method="post" action="{{ url_for('admin_ban_account', user_id=p.id) }}" onsubmit="return confirm('Khóa tài khoản này?')"><button class="btn red" type="submit">Khóa</button></form>
+                                {% endif %}
+                                {% if current_user.admin_level == 'owner' and p.account_status == 'approved' and p.admin_level == 'none' %}
+                                <form class="inline-form" method="post" action="{{ url_for('admin_promote_user', user_id=p.id) }}" onsubmit="return confirm('Thêm người này làm Admin?')"><button class="btn gold" type="submit">Thêm làm Admin</button></form>
+                                {% endif %}
+                                {% if p.admin_level == 'none' %}
+                                <form class="inline-form" method="post" action="{{ url_for('admin_reset_player_stats', user_id=p.id) }}" onsubmit="return confirm('Reset toàn bộ chỉ số thi đấu?')"><button class="btn gold" type="submit">Reset chỉ số</button></form>
+                                <form class="inline-form" method="post" action="{{ url_for('admin_delete_player', user_id=p.id) }}" onsubmit="return confirm('VÔ HIỆU HÓA tài khoản này? Lịch sử trận và RP của mọi người sẽ được giữ nguyên.')"><button class="btn red" type="submit">Xóa mềm</button></form>
+                                {% endif %}
+                                <a class="btn" href="{{ url_for('profile', user_id=p.id) }}">Xem hồ sơ</a>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="9">Chưa có tài khoản.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p id="adminUserEmpty" class="small" hidden>Không tìm thấy user phù hợp.</p>
+    </div>
+</section>
+
+
+<section class="admin-tab-panel" data-admin-panel="rooms">
+    <div class="panel">
+        <div class="admin-section-heading"><h2>🚪 Phòng đang hoạt động</h2><span class="admin-count">{{ rooms|length }}</span></div>
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead><tr><th>Chủ</th><th>Khách</th><th>Đội</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+                <tbody>
+                {% for r in rooms %}
+                <tr>
+                    <td>{{ r.host_name }}</td><td>{{ r.guest_name }}</td>
+                    <td>{{ r.host_team or '-' }} vs {{ r.guest_team or '-' }}</td>
+                    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+                    <td>
+                        <a class="btn" href="{{ url_for('room_detail', room_id=r.id) }}">Vào phòng</a>
+                        <form class="inline-form" method="post" action="{{ url_for('admin_cancel_room', room_id=r.id) }}" onsubmit="return confirm('Hủy phòng để người chơi có thể tạo phòng mới? RP, lịch sử, tỷ số, báo cáo và tranh chấp sẽ được giữ nguyên.')"><button class="btn gold" type="submit">Hủy phòng</button></form>
+                    </td>
+                </tr>
+                {% else %}<tr><td colspan="5">Không có phòng đang hoạt động.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="admin-section-heading">
+            <div>
+                <h2>🕘 Phòng đã đóng do chủ Offline</h2>
+                <p class="small">Các phòng này không còn khóa người chơi nhưng vẫn được giữ lại để Admin kiểm tra.</p>
+            </div>
+            <span class="admin-count">{{ recent_closed_rooms|length }}</span>
+        </div>
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead><tr><th>Chủ</th><th>Khách</th><th>Đội</th><th>Trạng thái</th><th>Lý do</th><th>Hành động</th></tr></thead>
+                <tbody>
+                {% for r in recent_closed_rooms %}
+                <tr>
+                    <td>{{ r.host_name }}</td>
+                    <td>{{ r.guest_name }}</td>
+                    <td>{{ r.host_team or '-' }} vs {{ r.guest_team or '-' }}</td>
+                    <td><span class="badge cancelled">Đã đóng</span></td>
+                    <td>{{ r.note or 'Chủ phòng Offline khi trận đang diễn ra.' }}</td>
+                    <td><a class="btn" href="{{ url_for('room_detail', room_id=r.id) }}">Xem phòng</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">Chưa có phòng nào bị đóng do chủ Offline.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="admin-section-heading"><h2>📨 Lời mời đang chờ</h2><span class="admin-count">{{ invites|length }}</span></div>
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead><tr><th>Người gửi</th><th>Người nhận</th><th>Chế độ</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+                <tbody>
+                {% for i in invites %}
+                <tr>
+                    <td>{{ i.from_name }}</td><td>{{ i.to_name }}</td><td>{{ i.tier }}</td>
+                    <td><span class="badge pending">{{ i.status }}</span></td>
+                    <td><form method="post" action="{{ url_for('admin_delete_invite', invite_id=i.id) }}" onsubmit="return confirm('Xóa lời mời này?')"><button class="btn red" type="submit">Xóa lời mời</button></form></td>
+                </tr>
+                {% else %}<tr><td colspan="5">Không có lời mời đang chờ.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% if can_admin('matches_view') %}
+<section class="admin-tab-panel" data-admin-panel="match-report">
+    <div class="panel">
+        <div class="admin-section-heading">
+            <div>
+                <h2>📊 Báo cáo số trận</h2>
+                <p class="small">Thống kê theo thời điểm trận Rank được tạo, sử dụng múi giờ Việt Nam.</p>
+            </div>
+            <span class="admin-count">{{ match_report.range_label }}</span>
+        </div>
+
+        <nav class="admin-report-filter" aria-label="Khoảng thời gian báo cáo">
+            {% for key, label in match_report.range_labels.items() %}
+            <a class="{% if match_report.range == key %}active{% endif %}" href="{{ url_for('admin', match_report_range=key) }}#match-report">{{ label }}</a>
+            {% endfor %}
+        </nav>
+
+        <div class="admin-report-summary">
+            <article class="admin-report-card"><span>Tổng số trận</span><strong>{{ match_report.total }}</strong></article>
+            <article class="admin-report-card"><span>Đã xác nhận</span><strong>{{ match_report.confirmed }}</strong></article>
+            <article class="admin-report-card"><span>Đang diễn ra</span><strong>{{ match_report.playing }}</strong></article>
+            <article class="admin-report-card"><span>Chờ xác nhận</span><strong>{{ match_report.waiting }}</strong></article>
+            <article class="admin-report-card"><span>Tranh chấp</span><strong>{{ match_report.disputed }}</strong></article>
+            <article class="admin-report-card"><span>Đã hủy</span><strong>{{ match_report.cancelled }}</strong></article>
+            <article class="admin-report-card"><span>Người tham gia</span><strong>{{ match_report.unique_players }}</strong></article>
+            <article class="admin-report-card"><span>Tổng bàn thắng</span><strong>{{ match_report.confirmed_goals }}</strong></article>
+        </div>
+
+        <div class="admin-section-heading">
+            <div>
+                <h3>🎮 So sánh chế độ Rank</h3>
+                <p class="small">Đếm toàn bộ trận Rank trong khoảng thời gian đang chọn. Chế độ được nhận diện từ dữ liệu trận đã lưu.</p>
+            </div>
+            <span class="admin-count">Nhiều hơn: {{ match_report.popular_mode }}</span>
+        </div>
+        <div class="admin-mode-compare">
+            <article class="admin-mode-card">
+                <h3>🎲 Rank Random</h3>
+                <span>Quay ngẫu nhiên một cặp đội</span>
+                <strong>{{ match_report.rank_random }} trận</strong>
+                <small>{{ match_report.rank_random_percent }}% tổng số trận</small>
+                <div class="admin-mode-bar"><span style="width:{{ match_report.rank_random_percent }}%"></span></div>
+            </article>
+            <article class="admin-mode-card">
+                <h3>🃏 Random 3 chọn 1</h3>
+                <span>Mỗi người chọn một đội trong ba lựa chọn</span>
+                <strong>{{ match_report.random3_pick1 }} trận</strong>
+                <small>{{ match_report.random3_pick1_percent }}% tổng số trận</small>
+                <div class="admin-mode-bar"><span style="width:{{ match_report.random3_pick1_percent }}%"></span></div>
+            </article>
+        </div>
+
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Ngày</th><th>Tổng trận</th><th>Rank Random</th><th>3 chọn 1</th><th>Đã xác nhận</th><th>Đang đá</th><th>Chờ xác nhận</th><th>Tranh chấp</th><th>Đã hủy</th><th>Người tham gia</th></tr>
+                </thead>
+                <tbody>
+                {% for row in match_report_daily %}
+                    <tr>
+                        <td><strong>{{ row.date_label }}</strong></td>
+                        <td>{{ row.total }}</td>
+                        <td>{{ row.rank_random }}</td>
+                        <td>{{ row.random3_pick1 }}</td>
+                        <td>{{ row.confirmed }}</td>
+                        <td>{{ row.playing }}</td>
+                        <td>{{ row.waiting }}</td>
+                        <td>{{ row.disputed }}</td>
+                        <td>{{ row.cancelled }}</td>
+                        <td>{{ row.player_count }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="10">Chưa có trận đấu trong khoảng thời gian này.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="admin-tab-panel" data-admin-panel="matches">
+    <div class="panel admin-matches-panel">
+        <div class="admin-section-heading">
+            <div>
+                <h2>🎮 Quản lý trận đấu gần đây</h2>
+                <p class="small">Admin chỉ được chuyển trận sang <strong>Đã xác nhận</strong> hoặc <strong>Đã hủy</strong>. Tỷ số không thể chỉnh tại đây. Khi trận đi vào hoặc rời trạng thái Đã xác nhận, hệ thống phát lại lịch sử theo thời gian gốc để tính lại RP, W-D-L, streak và loss_streak.</p>
+            </div>
+            <span class="admin-count">{{ all_matches|length }}</span>
+        </div>
+        <div class="table-wrap admin-table-wrap admin-match-scroll">
+            <table class="admin-match-table">
+                <thead><tr><th>Thời gian gốc</th><th>Người chơi 1</th><th>RP 1</th><th>Tỷ số</th><th>Người chơi 2</th><th>RP 2</th><th>Trạng thái</th><th>Ghi chú</th><th>Hành động</th></tr></thead>
+                <tbody>
+                {% for m in all_matches %}
+                {% set can_edit_match = can_admin('matches_confirm') or can_admin('matches_cancel') %}
+                <tr>
+                    <td class="match-time-cell">{{ format_vn_datetime(m.created_at) }}</td>
+                    <td class="match-player-cell"><strong>{{ m.player1_name }}</strong></td>
+                    <td class="rp-cell {{ 'rp-negative' if (m.delta1 or 0) < 0 else 'rp-positive' }}">{{ '%+d'|format(m.delta1 or 0) }}</td>
+                    <td class="admin-score-edit-cell">
+                        <strong>{{ m.score1 if m.score1 is not none else '–' }}</strong>
+                        <span>–</span>
+                        <strong>{{ m.score2 if m.score2 is not none else '–' }}</strong>
+                    </td>
+                    <td class="match-player-cell"><strong>{{ m.player2_name }}</strong></td>
+                    <td class="rp-cell {{ 'rp-negative' if (m.delta2 or 0) < 0 else 'rp-positive' }}">{{ '%+d'|format(m.delta2 or 0) }}</td>
+                    <td>
+                        {% if can_edit_match %}
+                        <select name="status" form="match-update-{{ m.id }}" class="admin-match-status-select">
+                            {% if m.status not in ['confirmed', 'cancelled'] %}
+                            <option value="{{ m.status }}" selected disabled>Hiện tại: {{ m.status }}</option>
+                            {% endif %}
+                            <option value="confirmed" {% if m.status == 'confirmed' %}selected{% endif %} {% if not can_admin('matches_confirm') and m.status != 'confirmed' %}disabled{% endif %}>Đã xác nhận</option>
+                            <option value="cancelled" {% if m.status == 'cancelled' %}selected{% endif %} {% if not can_admin('matches_cancel') and m.status != 'cancelled' %}disabled{% endif %}>Đã hủy</option>
+                        </select>
+                        {% else %}
+                        <span class="badge {{ m.status }}">{{ m.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="match-note-cell">
+                        {% if can_edit_match %}
+                        <input class="admin-match-note-input" name="note" form="match-update-{{ m.id }}" value="{{ m.note or '' }}" maxlength="500" placeholder="Ghi chú trận đấu">
+                        {% else %}{{ m.note or '—' }}{% endif %}
+                    </td>
+                    <td>
+                        <div class="match-actions">
+                            {% if can_edit_match %}
+                            <form id="match-update-{{ m.id }}" method="post" action="{{ url_for('admin_update_match', match_id=m.id) }}"></form>
+                            <button class="btn green" type="submit" form="match-update-{{ m.id }}" onclick="return confirm('Lưu trạng thái? Nếu trận đi vào hoặc rời Đã xác nhận, hệ thống sẽ phát lại lịch sử liên quan.')">Lưu trạng thái</button>
+                            {% else %}<span class="admin-match-locked">Chỉ xem</span>{% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}<tr><td colspan="9">Chưa có trận đấu.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% if can_create_test_account or can_import_accounts_csv %}
+<section class="admin-tab-panel" data-admin-panel="test-data">
+    <div class="admin-tool-grid">
+        {% if can_create_test_account %}
+        <section class="panel admin-tool-card">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-kicker">TẠO NHANH</span>
+                    <h2>🧪 Tạo tài khoản test</h2>
+                    <p class="small">Tài khoản được duyệt ngay, cho phép mật khẩu 1 ký tự, không khóa theo thiết bị/IP và vẫn tính RP như tài khoản thường.</p>
+                </div>
+            </div>
+            <form class="admin-test-form" method="post" action="{{ url_for('admin_create_test_account') }}">
+                <label>Tên tài khoản<input name="username" minlength="3" maxlength="30" placeholder="test_player_01" required></label>
+                <label>Tên hiển thị<input name="display_name" maxlength="80" placeholder="Test Player 01"></label>
+                <label>Mật khẩu<input name="password" type="password" minlength="1" value="1" required></label>
+                <label>Tên Zalo<input name="zalo_name" maxlength="80" value="Tài khoản test"></label>
+                <label>Điểm RP ban đầu<input name="rank_points" type="number" min="0" max="999999" value="1000"></label>
+                <button class="btn admin-primary-action" type="submit">Tạo tài khoản test</button>
+            </form>
+        </section>
+        {% endif %}
+
+        {% if can_import_accounts_csv %}
+        <section class="panel admin-tool-card">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-kicker">NHẬP HÀNG LOẠT</span>
+                    <h2>📥 Import tài khoản bằng CSV</h2>
+                    <p class="small">Tối đa 500 tài khoản/lần, file UTF-8 và tối đa 1 MB. Tài khoản đã tồn tại sẽ được <strong>cộng dồn</strong> dữ liệu. Riêng <code>rank_points</code> có thể nhập số âm, ví dụ <code>-1000</code>, để trừ RP.</p>
+                    <a class="btn gray small csv-sample-download" href="{{ url_for('admin_download_test_account_sample') }}">⬇ Tải file CSV mẫu</a>
+                </div>
+            </div>
+            <form class="admin-import-form" method="post" action="{{ url_for('admin_import_test_accounts') }}" enctype="multipart/form-data">
+                <label>Mật khẩu mặc định<input name="default_password" type="password" minlength="1" value="1" required></label>
+                <label>Chọn file CSV<input name="csv_file" type="file" accept=".csv,text/csv"></label>
+                <div class="admin-import-divider"><span>hoặc dán CSV</span></div>
+                <label>Dữ liệu CSV<textarea name="csv_text" rows="8" placeholder="username,display_name,password,rank_points,wins,draws,losses,goals_for,goals_against&#10;test01,Test 01,Test@12345,1200,5,2,3,12,9"></textarea></label>
+                <button class="btn admin-primary-action" type="submit" onclick="return confirm('Xác nhận import? Tài khoản đã tồn tại sẽ được cộng thêm dữ liệu. Nếu import lại cùng một file ở lần khác, dữ liệu sẽ tiếp tục được cộng thêm lần nữa.')">Import và cộng dữ liệu</button>
+            </form>
+            <div class="csv-format-note">
+                <strong>Cột hỗ trợ</strong>
+                <code>username, display_name, password (hoặc pass), zalo_name, rank_points, wins, draws, losses, total_matches, goals_for, goals_against</code>
+                <p class="muted">Tài khoản đã tồn tại: để trống cột <strong>password/pass</strong> thì hệ thống giữ nguyên mật khẩu cũ. Chỉ nhập mật khẩu khi bạn muốn đổi mật khẩu của user đó.</p>
+                <p class="small">Với tài khoản đã có, các cột số được cộng dồn: <code>rank_points, wins, draws, losses, total_matches, goals_for, goals_against</code>. Chỉ <code>rank_points</code> chấp nhận số âm; các thống kê khác không chấp nhận số âm. Mật khẩu trống sẽ giữ nguyên, mật khẩu có nội dung sẽ được cập nhật.</p>
+                <p class="small"><strong>Lưu ý:</strong> Import lại cùng file ở một lần khác sẽ tiếp tục cộng thêm dữ liệu lần nữa.</p>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{% if can_admin('system_features_manage') or can_admin('announcements_manage') or can_admin('daily_rank_limits_manage') %}
+<section class="admin-tab-panel" data-admin-panel="system">
+    {% if can_admin('daily_rank_limits_manage') %}
+    <div class="panel">
+        <h2>🏆 Giới hạn RP theo số trận Rank mỗi ngày</h2>
+        <p class="muted">Mỗi người tối đa 10 trận Rank từ Thứ 2 đến Thứ 6; riêng Thứ 7 và Chủ nhật tối đa 15 trận. Mức cộng tối đa vẫn là 150 RP/ngày; RP bị trừ khi thua vẫn tính bình thường.</p>
+        <form method="post" action="{{ url_for('admin_update_rank_daily_limits') }}" class="system-toggle-grid">
+            <label class="admin-permission-option">
+                <span><strong>Bật giới hạn Rank ngày</strong><small style="display:block">Ngày thường 10 trận • Cuối tuần 15 trận • Làm mới lúc 00:00 giờ Việt Nam</small></span>
+                <span class="admin-switch"><input type="checkbox" name="enabled" value="1" {% if rank_daily_limits_enabled %}checked{% endif %}><span class="admin-switch-track"></span></span>
+            </label>
+            <button class="btn" type="submit">Lưu giới hạn Rank</button>
+        </form>
+        <hr style="margin:18px 0">
+        <h3>🔄 Reset lượt Rank của người chơi</h3>
+        <p class="muted">Tạo một mốc đếm mới cho hôm nay. Lịch sử trận cũ vẫn được giữ nguyên; người chơi được tính RP lại đủ 10 trận ngày thường hoặc 15 trận cuối tuần. Trần cộng tối đa +150 RP/ngày không bị reset.</p>
+        {% if rank_daily_limits_enabled %}
+        <form method="post" action="{{ url_for('admin_reset_user_rank_daily_games') }}" class="system-toggle-grid" onsubmit="return confirm('Reset toàn bộ lượt Rank hôm nay của người chơi này? Lịch sử trận không bị xóa.');">
+            <label><span>Chọn người chơi</span>
+                <select name="user_id" required>
+                    <option value="">-- Chọn tài khoản --</option>
+                    {% for player in players|sort(attribute='display_name') %}
+                    <option value="{{ player.id }}">{{ player.display_name }} — {{ player.rank_points|default(0) }} RP</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn red" type="submit">Reset lượt tính RP hôm nay</button>
+        </form>
+        {% else %}
+        <p class="small"><strong>Chức năng đang khóa:</strong> cần bật “Giới hạn Rank ngày” và lưu cài đặt trước.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if can_admin('system_features_manage') %}
+    <div class="panel admin-system-features-panel"><h2>🎛️ Bật/tắt tính năng hệ thống</h2><p class="admin-feature-help"><strong>Rank thường</strong> và <strong>Random 3 chọn 1</strong> là hai chế độ thi đấu Rank riêng. Khi tắt Rank thường, Random 3 chọn 1 được bắt buộc bật để người chơi vẫn có thể thi đấu Rank. Công tắc BXH công khai không ảnh hưởng đến hai chế độ này. Trận đang thi đấu không bị can thiệp.</p><form method="post" action="{{ url_for('admin_update_system_features') }}" class="system-toggle-grid">{% for key,label in {'friendly_enabled':'Giao hữu thường','rank_standard_enabled':'Rank thường','friendly_random3_enabled':'Random 3 chọn 1','lobby_chat_enabled':'Chat Sảnh','room_chat_enabled':'Chat Phòng','registration_codes_enabled':'Mã đăng ký','announcements_enabled':'Thông báo','quick_match_enabled':'Tìm Nhanh','repeat_opponent_rp_enabled':'Giảm RP khi gặp lại cùng đối thủ','match_history_all_enabled':'Xem lịch sử toàn hệ thống'}.items() %}<label class="admin-permission-option"><span>{{ label }}</span><span class="admin-switch"><input type="checkbox" name="{{ key }}" value="1" {% if system_features.get(key) %}checked{% endif %}><span class="admin-switch-track"></span></span></label>{% endfor %}
+<label class="admin-permission-option admin-public-ranking-option">
+    <span>BXH công khai (không cần đăng nhập)</span>
+    <span class="admin-switch">
+        <input type="checkbox" name="public_ranking_enabled" value="1" {% if system_features.get('public_ranking_enabled', true) %}checked{% endif %}>
+        <span class="admin-switch-track"></span>
+    </span>
+</label>
+<button class="btn green" type="submit">Lưu cài đặt</button></form></div>
+    <div class="panel">
+        <h2>🎯 Hệ số RP khi gặp lại đối thủ</h2>
+        <p class="muted">Điều chỉnh riêng phần RP người thắng được cộng và RP người thua bị trừ ở từng lần một người đánh bại cùng đối thủ trong ngày. Mỗi dãy hệ số phải giảm dần từ lần 1 đến lần 4.</p>
+        {% set winner_factors = repeat_opponent_rp_config.get('winner_factors', [100, 60, 30, 0]) %}
+        {% set loser_factors = repeat_opponent_rp_config.get('loser_factors', [100, 70, 40, 10]) %}
+        <form method="post" action="{{ url_for('admin_update_repeat_opponent_rp_config') }}">
+            <div class="repeat-rp-layout">
+                <section class="repeat-rp-card">
+                    <h3>🏆 Hệ số thắng</h3>
+                    <p>Phần trăm tổng RP thắng được cộng cho người chiến thắng ở mỗi lần gặp lại cùng đối thủ.</p>
+                    <div class="repeat-rp-grid">
+                        {% for index in range(4) %}
+                        <label><span>Người thắng — lần {{ index + 1 }}{% if index == 3 %} trở đi{% endif %}</span>
+                            <input type="number" name="winner_factor_{{ index + 1 }}" min="0" max="100" step="1" value="{{ winner_factors[index] }}" required>
+                            <small>Phần trăm tổng RP thắng được cộng</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+                <section class="repeat-rp-card">
+                    <h3>🛡️ Hệ số thua</h3>
+                    <p>Phần trăm RP thua thông thường bị trừ đối với người thua ở từng lần thua trước cùng đối thủ.</p>
+                    <div class="repeat-rp-grid">
+                        {% for index in range(4) %}
+                        <label><span>Người thua — lần {{ index + 1 }}{% if index == 3 %} trở đi{% endif %}</span>
+                            <input type="number" name="loser_factor_{{ index + 1 }}" min="0" max="100" step="1" value="{{ loser_factors[index] }}" required>
+                            <small>Phần trăm RP thua thông thường bị trừ</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+            <div class="repeat-rp-actions">
+                <button class="btn" type="submit">Lưu cả hai bộ hệ số</button>
+            </div>
+        </form>
+        <div class="repeat-rp-summary small">
+            <div class="repeat-rp-summary-row"><span class="repeat-rp-summary-label">Người thắng:</span><strong>{{ winner_factors|join('% → ') }}%</strong></div>
+            <div class="repeat-rp-summary-row"><span class="repeat-rp-summary-label">Người thua:</span><strong>{{ loser_factors|join('% → ') }}%</strong></div>
+            <div class="repeat-rp-summary-row"><span>Từ trận đối đầu thứ 7 vẫn không tính RP.</span></div>
+        </div>
+    </div>
+    <div class="panel weekly-rp-panel">
+        {% set weekly = weekly_rp_reward_config %}
+        {% set weekly_total = weekly.get('opponents_5_rp', 20) + weekly.get('opponents_10_rp', 30) + weekly.get('opponents_20_rp', 50) + weekly.get('matches_rp', 20) %}
+        <div class="weekly-rp-header">
+            <div>
+                <span class="weekly-rp-eyebrow">THIẾT LẬP PHẦN THƯỞNG</span>
+                <h2>🎁 Thưởng RP theo tuần</h2>
+                <p>Mỗi mốc chỉ nhận một lần trong tuần và được cộng dồn.</p>
+            </div>
+            <div class="weekly-rp-total">
+                <span>Tối đa mỗi tuần</span>
+                <strong>{{ weekly_total }} RP</strong>
+            </div>
+        </div>
+
+        <form method="post" action="{{ url_for('admin_update_weekly_rp_rewards') }}" class="weekly-rp-form">
+            <div class="weekly-rp-section-title">Đa dạng đối thủ</div>
+            <div class="weekly-rp-two-column">
+                <div class="weekly-rp-column-head">Số đối thủ</div>
+                <div class="weekly-rp-column-head">Thưởng RP</div>
+
+                <div class="weekly-rp-cell">
+                    <input type="number" name="opponents_5_threshold" min="1" max="500" value="{{ weekly.get('opponents_5_threshold', 5) }}" required>
+                </div>
+                <div class="weekly-rp-cell weekly-rp-reward-cell">
+                    <input type="number" name="opponents_5_rp" min="0" max="1000" value="{{ weekly.get('opponents_5_rp', 20) }}" required><b>RP</b>
+                </div>
+
+                <div class="weekly-rp-cell">
+                    <input type="number" name="opponents_10_threshold" min="1" max="500" value="{{ weekly.get('opponents_10_threshold', 10) }}" required>
+                </div>
+                <div class="weekly-rp-cell weekly-rp-reward-cell">
+                    <input type="number" name="opponents_10_rp" min="0" max="1000" value="{{ weekly.get('opponents_10_rp', 30) }}" required><b>RP</b>
+                </div>
+
+                <div class="weekly-rp-cell">
+                    <input type="number" name="opponents_20_threshold" min="1" max="500" value="{{ weekly.get('opponents_20_threshold', 20) }}" required>
+                </div>
+                <div class="weekly-rp-cell weekly-rp-reward-cell">
+                    <input type="number" name="opponents_20_rp" min="0" max="1000" value="{{ weekly.get('opponents_20_rp', 50) }}" required><b>RP</b>
+                </div>
+            </div>
+
+            <div class="weekly-rp-section-title">Mức độ hoạt động</div>
+            <div class="weekly-rp-two-column weekly-rp-activity-grid">
+                <div class="weekly-rp-column-head">Số trận</div>
+                <div class="weekly-rp-column-head">Thưởng RP</div>
+                <div class="weekly-rp-cell">
+                    <input type="number" name="matches_threshold" min="1" max="500" value="{{ weekly.get('matches_threshold', 10) }}" required>
+                </div>
+                <div class="weekly-rp-cell weekly-rp-reward-cell">
+                    <input type="number" name="matches_rp" min="0" max="1000" value="{{ weekly.get('matches_rp', 20) }}" required><b>RP</b>
+                </div>
+            </div>
+
+            <div class="weekly-rp-footer">
+                <div class="weekly-rp-note"><strong>Quy tắc áp dụng</strong><span>Tuần tính từ 00:00 Thứ Hai đến trước 00:00 Thứ Hai tuần sau.</span></div>
+                <button class="btn green" type="submit">Lưu cấu hình thưởng tuần</button>
+            </div>
+        </form>
+    </div>
+    <div class="panel">
+        <h2>⚡ Giao diện nút Tìm Nhanh</h2>
+        <p class="muted">Chọn màu nổi bật cho nút Tìm Nhanh trong phòng đấu.</p>
+        <form method="post" action="{{ url_for('admin_update_quick_match') }}" class="system-toggle-grid">
+            <label><span>Màu nút</span>
+                <select name="color">
+                    <option value="blue" {% if quick_match_config.get('color') == 'blue' %}selected{% endif %}>Xanh dương sáng</option>
+                    <option value="green" {% if quick_match_config.get('color') == 'green' %}selected{% endif %}>Xanh lá sáng</option>
+                </select>
+            </label>
+            <button class="btn" type="submit">Lưu màu nút</button>
+        </form>
+    </div>
+    {% endif %}
+    {% if can_admin('announcements_manage') %}
+    <div class="panel">
+        <h2>📢 Thông báo Admin chạy ngang</h2>
+        {% if active_announcement %}
+        <p>Đang bật: <strong>{{ active_announcement.title }}</strong> — {{ active_announcement.message }}</p>
+        <form method="post" action="{{ url_for('admin_clear_announcement') }}"><button class="btn red" type="submit">Tắt thông báo hiện tại</button></form>
+        {% endif %}
+        <form method="post" action="{{ url_for('admin_create_announcement') }}" class="grid-form admin-announcement-form">
+            <div><label>Tiêu đề ngắn</label><input name="title" maxlength="40" value="THÔNG BÁO"></div>
+            <div><label>Nội dung thông báo</label><input name="message" maxlength="220" placeholder="Ví dụ: Tối nay 20:00 mở giải..." required></div>
+            <button class="btn gold" type="submit">Đăng thông báo</button>
+        </form>
+    </div>
+    {% endif %}
+
+</section>
+{% endif %}
+
+<section class="admin-tab-panel admin-economy-embed-panel" data-admin-panel="economy" hidden>
+    <div class="panel admin-module-shell">
+        <div class="admin-section-heading">
+            <div><h2>🪙 Quản trị Zcoin & Gift Code</h2><p class="small">Module được tải khi mở tab, không tải lại toàn bộ trang Admin.</p></div>
+            <a class="btn gray" href="{{ url_for('admin_economy') }}" target="_blank" rel="noopener">Mở trang riêng</a>
+        </div>
+        <iframe class="admin-module-frame" title="Quản trị Zcoin và Gift Code" data-admin-lazy-src="{{ url_for('admin_economy') }}?embedded=1" loading="lazy"></iframe>
+    </div>
+</section>
+
+{% if current_user.admin_level == 'owner' %}
+<section class="admin-tab-panel" data-admin-panel="rp-tools">
+    <div class="panel">
+        <h2>📈 Bộ Công Cụ Tính RP</h2>
+        <p>Công cụ này chỉ dùng để sao lưu và khôi phục RP, thống kê và delta RP đã lưu.</p>
+        {% if is_test_mode %}
+        <p class="notice success">🧪 TEST MODE đang bật — hãy bảo đảm dự án đang dùng Supabase Test.</p>
+        {% else %}
+        <p class="notice warning">⚠ Production: hãy tải Backup RP trước khi thực hiện Restore.</p>
+        {% endif %}
+
+        <div class="admin-rp-tool-grid">
+            {% if can_admin('rp_backup_restore') %}
+            <div class="admin-rp-tool-card">
+                <h3>⬇️ Backup RP toàn hệ thống</h3>
+                <p>Chỉ lưu RP, thắng–hòa–thua, số trận, bàn thắng/bàn thua, chuỗi thắng/thua và delta RP của từng trận. Không lưu mật khẩu, Chat, phòng hoặc dữ liệu tài khoản khác.</p>
+                <form method="post" action="{{ url_for('admin_download_rp_backup') }}" onsubmit="return confirm('Tạo file sao lưu RP hiện tại?');">
+                    {% if not is_test_mode %}
+                    <label>Nhập <strong>SAO LUU RP</strong></label>
+                    <input name="confirm_text" autocomplete="off" placeholder="SAO LUU RP" required>
+                    {% endif %}
+                    <button class="btn gold" type="submit">⬇️ Tải Backup RP</button>
+                </form>
+            </div>
+
+            <div class="admin-rp-tool-card">
+                <h3>♻️ Restore RP toàn hệ thống</h3>
+                <p>Đưa RP và thống kê trở về đúng trạng thái trong file Backup. Không xóa tài khoản, không sửa tỷ số và không tạo lại trận.</p>
+                <form method="post" action="{{ url_for('admin_restore_rp_backup') }}" enctype="multipart/form-data" onsubmit="return confirm('Khôi phục RP sẽ ghi đè RP và thống kê hiện tại. Bạn chắc chắn tiếp tục?');">
+                    <label>File RP Backup ZIP hoặc JSON</label>
+                    <input type="file" name="backup_file" accept=".zip,.json,application/zip,application/json" required>
+                    {% if not is_test_mode %}
+                    <label>Mật khẩu hiện tại của tài khoản sở hữu</label>
+                    <input type="password" name="current_password" autocomplete="current-password" required>
+                    <label>Nhập <strong>KHOI PHUC RP</strong></label>
+                    <input name="confirm_text" autocomplete="off" placeholder="KHOI PHUC RP" required>
+                    {% endif %}
+                    <button class="btn red" type="submit">♻️ Khôi phục RP</button>
+                </form>
+            </div>
+
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="admin-tab-panel" data-admin-panel="logs">
+    <div class="panel">
+        <div class="admin-section-heading">
+            <div>
+                <h2>🧾 Nhật ký hoạt động Admin</h2>
+                <p class="small">Chỉ Admin được xem. Nhật ký ghi hành động, đối tượng, thời gian và IP thao tác.</p>
+            </div>
+            <span class="admin-count">{{ audit_logs|length }}</span>
+        </div>
+        <div class="table-wrap admin-table-wrap">
+            <table>
+                <thead><tr><th>Thời gian</th><th>Admin</th><th>Hành động</th><th>Đối tượng</th><th>Chi tiết</th><th>IP</th></tr></thead>
+                <tbody>
+                {% for log in audit_logs %}
+                <tr>
+                    <td>{{ format_vn_datetime(log.created_at) }}</td>
+                    <td><strong>{{ log.admin_name or '-' }}</strong></td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.target_type or '-' }}{% if log.target_label %}<br><span class="small">{{ log.target_label }}</span>{% endif %}</td>
+                    <td class="admin-log-details">{{ log.details or '-' }}</td>
+                    <td><code>{{ log.ip_address or '-' }}</code></td>
+                </tr>
+                {% else %}<tr><td colspan="9">Chưa có nhật ký hoạt động.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
 
 {% endblock %}
 

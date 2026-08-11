@@ -3,7 +3,7 @@ from pathlib import Path
 root = Path(__file__).parent
 app = (root / "app.py").read_text(encoding="utf-8")
 service = (root / "modules/weekly_rp_rewards_service.py").read_text(encoding="utf-8")
-sql = (root / "project_docs/sql/update_weekly_rp_rewards_v1_14_41_58.sql").read_text(encoding="utf-8")
+sql = (root / "docs/update_weekly_rp_rewards_v1_14_41_58.sql").read_text(encoding="utf-8")
 match_service = (root / "modules/match_result_service.py").read_text(encoding="utf-8")
 admin_routes = (root / "modules/admin_match_routes.py").read_text(encoding="utf-8")
 

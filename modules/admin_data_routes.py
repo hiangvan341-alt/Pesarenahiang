@@ -25,80 +25,50 @@ def register_routes(context):
     @admin_required
     @admin_permission_required("rooms_manage")
     def admin_cancel_room(room_id):
-        """Giải phóng phòng an toàn; lỗi phụ không được trả Internal Server Error."""
-        try:
-            room = get_room(room_id)
-            if not room:
-                flash("Không tìm thấy phòng.", "danger")
-                return redirect_admin("rooms")
-
-            if room.get("status") == "cancelled":
-                flash("Phòng này đã được hủy trước đó.", "warning")
-                return redirect_admin("rooms")
-
-            linked_match = None
-            if room.get("match_id"):
-                try:
-                    linked_match = get_match(room.get("match_id"))
-                except Exception as exc:
-                    app.logger.warning("admin_cancel_room get_match failed room=%s: %s", room_id, exc)
-            old_match_status = linked_match.get("status") if linked_match else None
-            updated_at = now_iso()
-
-            # Dùng execute_query để có retry ngắn và log đúng nhãn. Điều kiện status
-            # giúp thao tác idempotent khi người dùng double-click hoặc Vercel retry.
-            update_query = (
-                db.table("match_rooms")
-                .update({
-                    "status": "cancelled",
-                    "note": "Admin đã hủy phòng để giải phóng người chơi. Kết quả trận được xử lý độc lập.",
-                    "state_expires_at": None,
-                    "updated_at": updated_at,
-                })
-                .eq("id", room_id)
-                .neq("status", "cancelled")
-            )
-            execute_query(update_query, "admin_cancel_room", attempts=2)
-
-            # Lời mời là dữ liệu phụ. Nếu bảng/column lời mời lỗi, phòng vẫn phải
-            # được giải phóng và Admin nhận thông báo cảnh báo thay vì trang 500.
-            invite_warning = False
-            if room.get("invite_id"):
-                try:
-                    execute_query(
-                        db.table("match_invites").update({
-                            "status": "cancelled",
-                            "updated_at": updated_at,
-                        }).eq("id", room.get("invite_id")),
-                        "admin_cancel_room_invite",
-                        attempts=2,
-                    )
-                except Exception as exc:
-                    invite_warning = True
-                    app.logger.exception("Cancel linked invite failed room=%s invite=%s: %s", room_id, room.get("invite_id"), exc)
-
-            cache_delete("_rz_rooms_all")
-            cache_delete("_rz_invites_all")
-            cache_delete("_rz_current_pending_invites")
-            ttl_cache_delete("rooms_raw")
-            ttl_cache_delete("invites_raw")
-
-            log_admin_action(
-                "Hủy phòng", "room", room_id,
-                details=(
-                    f"Phòng cũ: {room.get('status')}; trận: {old_match_status or 'không có'}; "
-                    "chỉ giải phóng phòng, không sửa trạng thái trận và không đổi RP"
-                ),
-            )
-            if invite_warning:
-                flash("Đã hủy phòng. Lời mời liên kết chưa cập nhật được nhưng người chơi đã được giải phóng.", "warning")
-            else:
-                flash("Đã hủy phòng. Kết quả trận vẫn được xử lý riêng và RP không bị mất.", "success")
+        """Chỉ giải phóng phòng; tuyệt đối không thay đổi kết quả hoặc RP của trận."""
+        room = get_room(room_id)
+        if not room:
+            flash("Không tìm thấy phòng.", "danger")
             return redirect_admin("rooms")
-        except Exception as exc:
-            app.logger.exception("admin_cancel_room failed room=%s: %s", room_id, exc)
-            flash("Không thể hủy phòng lúc này. Hệ thống đã ghi log lỗi; vui lòng thử lại sau vài giây.", "danger")
+
+        if room.get("status") == "cancelled":
+            flash("Phòng này đã được hủy trước đó.", "warning")
             return redirect_admin("rooms")
+
+        linked_match = get_match(room.get("match_id")) if room.get("match_id") else None
+        old_match_status = linked_match.get("status") if linked_match else None
+        updated_at = now_iso()
+
+        # Không sửa bảng matches. Trận waiting_confirm vẫn chờ đủ 12 giờ rồi
+        # tự xác nhận/cộng trừ RP; disputed vẫn chờ Admin xử lý riêng.
+        db.table("match_rooms").update({
+            "status": "cancelled",
+            "note": "Admin đã hủy phòng để giải phóng người chơi. Kết quả trận được xử lý độc lập.",
+            "state_expires_at": None,
+            "updated_at": updated_at,
+        }).eq("id", room_id).execute()
+
+        if room.get("invite_id"):
+            db.table("match_invites").update({
+                "status": "cancelled",
+                "updated_at": updated_at,
+            }).eq("id", room.get("invite_id")).execute()
+
+        cache_delete("_rz_rooms_all")
+        cache_delete("_rz_invites_all")
+        cache_delete("_rz_current_pending_invites")
+        ttl_cache_delete("rooms_raw")
+        ttl_cache_delete("invites_raw")
+
+        log_admin_action(
+            "Hủy phòng", "room", room_id,
+            details=(
+                f"Phòng cũ: {room.get('status')}; trận: {old_match_status or 'không có'}; "
+                "chỉ giải phóng phòng, không sửa trạng thái trận và không đổi RP"
+            ),
+        )
+        flash("Đã hủy phòng. Kết quả trận vẫn được xử lý riêng và RP không bị mất.", "success")
+        return redirect_admin("rooms")
 
 
     @app.route("/admin/invite/<invite_id>/delete", methods=["POST"])

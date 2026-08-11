@@ -5,7 +5,6 @@ kết quả. Vì vậy các trạng thái playing, waiting_confirm, disputed và
 đều chiếm một lượt. Trận bỏ cuộc hợp lệ cũng chiếm một lượt Rank.
 """
 from datetime import datetime, timedelta, timezone
-import time
 
 EXPORTED_NAMES = [
     "daily_rank_limits_enabled",
@@ -29,20 +28,6 @@ WEEKEND_GAME_LIMIT = 15
 DAILY_POSITIVE_RP_LIMIT = 150
 VN_TZ = timezone(timedelta(hours=7))
 COUNTED_MATCH_STATUSES = {"playing", "waiting_confirm", "waiting_result_confirm", "processing_result", "disputed", "confirmed"}
-
-_DAILY_CONFIG_CACHE = {"value": None, "expires_at": 0.0}
-_DAILY_CONFIG_TTL_SECONDS = 8.0
-
-def _request_cache():
-    checker = globals().get("has_request_context")
-    flask_g = globals().get("g")
-    if callable(checker) and checker() and flask_g is not None:
-        cache = getattr(flask_g, "_daily_rank_request_cache", None)
-        if cache is None:
-            cache = {}
-            setattr(flask_g, "_daily_rank_request_cache", cache)
-        return cache
-    return None
 
 
 def configure(context):
@@ -69,14 +54,6 @@ def _day_bounds_utc_iso(moment=None):
 
 
 def _load_daily_rank_config():
-    request_cache = _request_cache()
-    if request_cache is not None and "config" in request_cache:
-        return dict(request_cache["config"])
-    now = time.monotonic()
-    if isinstance(_DAILY_CONFIG_CACHE.get("value"), dict) and now < float(_DAILY_CONFIG_CACHE.get("expires_at") or 0):
-        config = dict(_DAILY_CONFIG_CACHE["value"])
-        if request_cache is not None: request_cache["config"] = dict(config)
-        return config
     try:
         result = execute_query(
             db.table("system_settings").select("setting_value")
@@ -86,14 +63,10 @@ def _load_daily_rank_config():
         )
         row = (result.data or [{}])[0]
         raw = row.get("setting_value")
-        config = dict(raw) if isinstance(raw, dict) else {}
+        return dict(raw) if isinstance(raw, dict) else {}
     except Exception as exc:
         print(f"_load_daily_rank_config warning: {exc}")
-        config = {}
-    _DAILY_CONFIG_CACHE["value"] = dict(config)
-    _DAILY_CONFIG_CACHE["expires_at"] = now + _DAILY_CONFIG_TTL_SECONDS
-    if request_cache is not None: request_cache["config"] = dict(config)
-    return config
+        return {}
 
 
 def get_user_daily_rank_reset(user_id, moment=None):
@@ -161,8 +134,22 @@ def reset_user_daily_rank_games(user_id, actor_id=None):
 
 
 def daily_rank_limits_enabled():
-    config = _load_daily_rank_config()
-    return bool(config.get("enabled", True))
+    try:
+        result = execute_query(
+            db.table("system_settings").select("setting_value")
+            .eq("setting_key", SETTING_KEY).limit(1),
+            "get_rank_daily_limits_config",
+            attempts=2,
+        )
+        row = (result.data or [{}])[0]
+        raw = row.get("setting_value")
+        if isinstance(raw, dict):
+            return bool(raw.get("enabled", True))
+        if isinstance(raw, bool):
+            return raw
+    except Exception as exc:
+        print(f"daily_rank_limits_enabled warning: {exc}")
+    return True
 
 
 def set_daily_rank_limits_enabled(enabled, actor_id=None):
@@ -185,20 +172,12 @@ def set_daily_rank_limits_enabled(enabled, actor_id=None):
         "set_rank_daily_limits_config",
         attempts=2,
     )
-    _DAILY_CONFIG_CACHE["value"] = dict(payload)
-    _DAILY_CONFIG_CACHE["expires_at"] = time.monotonic() + _DAILY_CONFIG_TTL_SECONDS
-    request_cache = _request_cache()
-    if request_cache is not None: request_cache["config"] = dict(payload)
     return payload
 
 
 def _matches_today(user_id):
     if not user_id:
         return []
-    request_cache = _request_cache()
-    cache_key = f"matches:{user_id}"
-    if request_cache is not None and cache_key in request_cache:
-        return list(request_cache[cache_key])
     start_iso, end_iso = _day_bounds_utc_iso()
     result = execute_query(
         db.table("matches")
@@ -209,9 +188,7 @@ def _matches_today(user_id):
         "rank_daily_matches_started",
         attempts=2,
     )
-    rows = list(result.data or [])
-    if request_cache is not None: request_cache[cache_key] = list(rows)
-    return rows
+    return list(result.data or [])
 
 
 def _is_counted_rank_match(match):

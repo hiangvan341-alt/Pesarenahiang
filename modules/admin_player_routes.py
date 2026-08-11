@@ -101,11 +101,11 @@ def register_routes(context):
         actor = current_user()
         if not player:
             flash("Không tìm thấy tài khoản.", "danger")
-            return redirect(url_for("admin", tab="users") + "#users")
+            return redirect(url_for("admin") + "#users")
 
         if is_admin_user(player) and not is_owner_user(actor):
             flash("Chỉ Chủ hệ thống mới được sửa tài khoản Admin.", "danger")
-            return redirect(url_for("admin", tab="users") + "#users")
+            return redirect(url_for("admin") + "#users")
 
         display_name = request.form.get("display_name", "").strip()
         username = request.form.get("username", "").strip()
@@ -144,7 +144,7 @@ def register_routes(context):
         if new_password:
             if len(new_password) < minimum_password_length():
                 flash(f"Mật khẩu mới phải có ít nhất {minimum_password_length()} ký tự.", "danger")
-                return redirect(url_for("admin", tab="users") + "#users")
+                return redirect(url_for("admin") + "#users")
             update_data["password_hash"] = hash_password(new_password)
             update_data["must_change_password"] = True
             update_data["password_changed_at"] = now_iso()
@@ -189,7 +189,7 @@ def register_routes(context):
             "Các mục: " + ", ".join(changed),
         )
         flash(f"Đã cập nhật tài khoản {player.get('username')}.", "success")
-        return redirect(url_for("admin", tab="users") + "#users")
+        return redirect(url_for("admin") + "#users")
 
 
     @app.route("/admin/player/<user_id>/reset-stats", methods=["POST"])

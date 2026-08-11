@@ -210,20 +210,6 @@ def register_routes(context):
             return redirect(url_for("room_detail", room_id=room_id))
 
         try:
-            # Series modes confirm each child match without per-game RP.
-            # The orchestrator records the child result and applies the configured
-            # Series RP exactly once when Home/Away or BO3 is complete.
-            if is_series_child_match(match):
-                series_result = confirm_series_child_match(room, match, user.get("id"))
-                if series_result.get("series_completed"):
-                    flash(
-                        f"Đã xác nhận trận và hoàn tất Series. RP: {int(series_result.get('delta1') or 0):+d} / {int(series_result.get('delta2') or 0):+d}.",
-                        "success",
-                    )
-                else:
-                    flash("Đã xác nhận trận con. Series tiếp tục sang trận kế tiếp và chưa tính RP giữa chừng.", "success")
-                return redirect(url_for("room_detail", room_id=room_id))
-
             try:
                 users_before_streak_event = users_map()
             except Exception as exc:
@@ -346,8 +332,6 @@ def register_routes(context):
         reason_label = dispute_reason_label(reason_code)
         note = f"{user.get('display_name', 'Khách')} không đồng ý kết quả: {reason_label}."
         disputed_match_id = room.get("match_id")
-        disputed_match = get_match(disputed_match_id) if disputed_match_id else None
-        disputed_was_series_child = bool(disputed_match and is_series_child_match(disputed_match))
         previous_mode = room.get("team_tier") or SMART_RANDOM_MODE
         if not system_feature_enabled("rank_standard_enabled"):
             previous_mode = FRIENDLY_RANDOM3_MODE
@@ -402,11 +386,6 @@ def register_routes(context):
             )
             if not (room_update_result.data or []):
                 raise ValueError("Trạng thái phòng vừa thay đổi; chưa thể giải phóng phòng.")
-            if disputed_was_series_child:
-                # A disputed child cannot safely coexist with a continuing BO3/Home-Away
-                # because the winner/game count is unresolved. Cancel only this Series;
-                # the room remains on the same selected mode and can start a fresh Series.
-                cancel_active_series_for_room(room_id, reason="child_match_disputed")
             ttl_cache_delete("rooms_raw")
         except Exception as exc:
             if evidence_path:

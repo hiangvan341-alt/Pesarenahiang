@@ -15,7 +15,7 @@ def test_admin_gift_notifications_wired():
     assert 'admin_gift_item' in read("modules/admin_shop/routes.py")
     assert 'admin_gift_zcoin' in read("modules/admin_economy/routes.py")
     assert 'admin_gift_code' in read("modules/admin_economy/routes.py")
-    assert 'GIFT_CODE_RECIPIENT_ONLY' in read("project_docs/sql/update_admin_gift_notification_v1_14_41_41.sql")
+    assert 'GIFT_CODE_RECIPIENT_ONLY' in read("docs/update_admin_gift_notification_v1_14_41_41.sql")
 
 def test_deep_links_wired():
     assert 'focus_item_code' in read("modules/inventory/service.py")

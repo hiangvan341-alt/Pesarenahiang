@@ -8,10 +8,7 @@
                 <button class="btn gray" type="submit">Hủy sẵn sàng</button>
             </form>
             {% endif %}
-            <form class="room-action-confirm-form" method="post" action="{{ url_for('room_guest_forfeit', room_id=room.id) }}"
-                  data-modal-tone="danger" data-modal-icon="⚠" data-modal-title="Xác nhận bỏ cuộc"
-                  data-modal-message="Bạn đã chấp nhận vào phòng. Thoát lúc này được tính là bỏ cuộc."
-                  data-modal-note="−20 RP" data-modal-confirm-label="Bỏ cuộc và thoát">
+            <form method="post" action="{{ url_for('room_guest_forfeit', room_id=room.id) }}" onsubmit="return confirm('Bạn đã chấp nhận vào phòng. Thoát lúc này được tính là Bỏ Cuộc và bị trừ 20 RP. Tiếp tục?');">
                 <button class="btn red" type="submit">Thoát phòng</button>
             </form>
         </div>
