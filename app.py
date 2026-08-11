@@ -612,6 +612,43 @@ def system_feature_enabled(key: str) -> bool:
     return bool(get_system_features().get(key, SYSTEM_FEATURE_DEFAULTS.get(key, False)))
 
 
+ROOM_STYLE_SETTING_KEY = "room_visual_style"
+ROOM_STYLE_DEFAULT = "champions-night"
+ROOM_STYLE_OPTIONS = {
+    "champions-night": "Champions Night",
+    "frozen-tech": "Frozen Tech",
+    "ember-rivalry": "Ember Rivalry",
+    "royal-gold": "Royal Gold",
+    "mono-tactical": "Mono Tactical",
+}
+
+
+def get_room_visual_style():
+    request_key = "_room_visual_style_cached"
+    cached = cache_get(request_key)
+    if cached in ROOM_STYLE_OPTIONS:
+        return cached
+    cached = ttl_cache_get("room_visual_style")
+    if cached in ROOM_STYLE_OPTIONS:
+        return cache_set(request_key, cached)
+    style = ROOM_STYLE_DEFAULT
+    try:
+        result = execute_query(
+            db.table("system_settings").select("setting_value")
+            .eq("setting_key", ROOM_STYLE_SETTING_KEY).limit(1),
+            "get_room_visual_style", attempts=2,
+        )
+        raw = ((result.data or [{}])[0]).get("setting_value")
+        if isinstance(raw, dict):
+            raw = raw.get("style")
+        if raw in ROOM_STYLE_OPTIONS:
+            style = raw
+    except Exception as exc:
+        print(f"get_room_visual_style warning: {exc}")
+    ttl_cache_set("room_visual_style", style, 45)
+    return cache_set(request_key, style)
+
+
 QUICK_MATCH_SETTING_KEY = "quick_match_config"
 QUICK_MATCH_COLOR_DEFAULT = "blue"
 QUICK_MATCH_COLOR_VALUES = {"blue", "green"}

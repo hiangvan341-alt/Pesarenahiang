@@ -23,6 +23,8 @@ def register_routes(context):
             "maintenance_status": get_maintenance_status(),
             "rank_daily_limits_enabled": daily_rank_limits_enabled(),
             "quick_match_config": get_quick_match_config(),
+            "room_visual_style": get_room_visual_style(),
+            "room_style_options": ROOM_STYLE_OPTIONS,
             "repeat_opponent_rp_config": get_repeat_opponent_rp_config(),
             "weekly_rp_reward_config": get_weekly_rp_reward_config(),
             "duplicate_ip_warning_config": get_duplicate_ip_warning_config(),
@@ -62,6 +64,32 @@ def register_routes(context):
         _maintenance_cache["expires_at"] = time.time() + 15
         log_admin_action("Cập nhật trạng thái bảo trì máy chủ", "system", details=config)
         flash("Đã lưu trạng thái và lịch bảo trì máy chủ.", "success")
+        return redirect_admin("system")
+
+
+    @app.route("/admin/system/room-visual-style", methods=["POST"])
+    @login_required
+    @admin_required
+    @admin_permission_required("system_features_manage")
+    def admin_update_room_visual_style():
+        style = (request.form.get("room_visual_style") or "").strip().lower()
+        if style not in ROOM_STYLE_OPTIONS:
+            flash("Phong cách phòng đấu không hợp lệ.", "danger")
+            return redirect_admin("system")
+        execute_query(
+            db.table("system_settings").upsert({
+                "setting_key": ROOM_STYLE_SETTING_KEY,
+                "setting_value": {"style": style},
+                "updated_at": now_iso(),
+            }, on_conflict="setting_key"),
+            "update_room_visual_style",
+        )
+        ttl_cache_delete("room_visual_style")
+        cache_delete("_room_visual_style_cached")
+        log_admin_action("Đổi phong cách phòng đấu", "system", details={
+            "style": style, "label": ROOM_STYLE_OPTIONS[style],
+        })
+        flash(f"Đã áp dụng phong cách {ROOM_STYLE_OPTIONS[style]} cho toàn bộ phòng đấu.", "success")
         return redirect_admin("system")
 
 
@@ -252,7 +280,7 @@ def register_routes(context):
             )
 
         if previous_features.get("friendly_random3_enabled", True) and not features.get("friendly_random3_enabled", False):
-            # Khi Rank thường đang bật, chuyển phòng Random 3 chưa bắt đầu về Rank thường.
+            # Khi Rank đơn đang bật, chuyển phòng Random 3 chưa bắt đầu về Rank đơn.
             best_effort(
                 db.table("match_rooms").update({
                     "status": "waiting_ready",
@@ -260,7 +288,7 @@ def register_routes(context):
                     "team_tier": SMART_RANDOM_MODE,
                     "host_team": None,
                     "guest_team": None,
-                    "note": "Random 3 chọn 1 đã được Admin tắt. Phòng chuyển về Rank thường.",
+                    "note": "Random 3 chọn 1 đã được Admin tắt. Phòng chuyển về Rank đơn.",
                     "updated_at": now_iso(),
                 }).eq("team_tier", FRIENDLY_RANDOM3_MODE).eq("status", "waiting_ready"),
                 "disable_random3_waiting_rooms",
@@ -272,7 +300,7 @@ def register_routes(context):
                     db.table("match_rooms").update({
                         "team_tier": FRIENDLY_RANDOM3_MODE,
                         "friendly_tier": None,
-                        "note": "Rank thường đã tắt. Phòng chuyển sang Random 3 chọn 1.",
+                        "note": "Rank đơn đã tắt. Phòng chuyển sang Random 3 chọn 1.",
                         "updated_at": now_iso(),
                     }).eq("status", "waiting_ready").eq("match_mode", MATCH_MODE_RANKED).eq("team_tier", SMART_RANDOM_MODE),
                     "migrate_smart_rank_rooms_to_random3",
@@ -281,7 +309,7 @@ def register_routes(context):
                     db.table("match_rooms").update({
                         "team_tier": FRIENDLY_RANDOM3_MODE,
                         "friendly_tier": None,
-                        "note": "Rank thường đã tắt. Phòng chuyển sang Random 3 chọn 1.",
+                        "note": "Rank đơn đã tắt. Phòng chuyển sang Random 3 chọn 1.",
                         "updated_at": now_iso(),
                     }).eq("status", "waiting_ready").eq("match_mode", MATCH_MODE_RANKED).is_("team_tier", "null"),
                     "migrate_null_rank_rooms_to_random3",
@@ -593,4 +621,3 @@ def register_routes(context):
         session.clear()
         flash("Đã chuyển giao quyền sở hữu. Hãy đăng nhập lại.", "success")
         return redirect(url_for("login"))
-

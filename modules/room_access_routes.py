@@ -158,6 +158,7 @@ def register_routes(context):
             # Luôn truyền cấu hình Tìm Nhanh vào cả trang đầy đủ và HTML polling.
             # Nếu thiếu, Jinja dùng màu mặc định và có thể không phản ánh lựa chọn Admin.
             "quick_match_config": get_quick_match_config(),
+            "room_visual_style": get_room_visual_style(),
             "daily_rank_limit_blocked": bool(daily_limit_message),
             "daily_rank_limit_message": daily_limit_message,
             # Supabase có thể trả ID ở kiểu khác session. Dùng so sánh chuẩn hóa
@@ -403,4 +404,3 @@ def register_routes(context):
         )
         flash("Bạn đã thoát và đóng phòng đấu.", "success")
         return redirect(url_for("dashboard"))
-

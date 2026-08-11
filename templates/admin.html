@@ -653,7 +653,33 @@
     {% endif %}
 
     {% if can_admin('system_features_manage') %}
-    <div class="panel admin-system-features-panel"><h2>🎛️ Bật/tắt tính năng hệ thống</h2><p class="admin-feature-help"><strong>Rank thường</strong> và <strong>Random 3 chọn 1</strong> là hai chế độ thi đấu Rank riêng. Khi tắt Rank thường, Random 3 chọn 1 được bắt buộc bật để người chơi vẫn có thể thi đấu Rank. Công tắc BXH công khai không ảnh hưởng đến hai chế độ này. Trận đang thi đấu không bị can thiệp.</p><form method="post" action="{{ url_for('admin_update_system_features') }}" class="system-toggle-grid">{% for key,label in {'friendly_enabled':'Giao hữu thường','rank_standard_enabled':'Rank thường','friendly_random3_enabled':'Random 3 chọn 1','lobby_chat_enabled':'Chat Sảnh','room_chat_enabled':'Chat Phòng','registration_codes_enabled':'Mã đăng ký','announcements_enabled':'Thông báo','quick_match_enabled':'Tìm Nhanh','repeat_opponent_rp_enabled':'Giảm RP khi gặp lại cùng đối thủ','match_history_all_enabled':'Xem lịch sử toàn hệ thống'}.items() %}<label class="admin-permission-option"><span>{{ label }}</span><span class="admin-switch"><input type="checkbox" name="{{ key }}" value="1" {% if system_features.get(key) %}checked{% endif %}><span class="admin-switch-track"></span></span></label>{% endfor %}
+    <div class="panel admin-room-style-panel">
+        <h2>🎨 Phong cách phòng đấu</h2>
+        <p class="muted">Chọn một phong cách áp dụng đồng bộ cho mọi trạng thái phòng, hai phía người chơi và toàn bộ nút thao tác.</p>
+        <form method="post" action="{{ url_for('admin_update_room_visual_style') }}">
+            <div class="admin-room-style-grid">
+                {% set style_descriptions = {
+                    'champions-night':'Xanh đêm và ánh bạc của sân khấu vô địch',
+                    'frozen-tech':'Cyan băng giá, đường sáng công nghệ',
+                    'ember-rivalry':'Than đỏ và cam lửa đầy đối kháng',
+                    'royal-gold':'Đen vàng sang trọng của nhà vô địch',
+                    'mono-tactical':'Xám chiến thuật, rõ nét và tối giản'
+                } %}
+                {% for value,label in room_style_options.items() %}
+                <label class="admin-room-style-card style-preview-{{ value }}">
+                    <input type="radio" name="room_visual_style" value="{{ value }}" {% if room_visual_style == value %}checked{% endif %}>
+                    <span class="admin-room-style-check">✓</span>
+                    <span class="admin-room-style-stage"><i></i><b>VS</b><i></i></span>
+                    <strong>{{ label }}</strong>
+                    <small>{{ style_descriptions[value] }}</small>
+                    <span class="admin-room-style-buttons"><em>RANK ĐƠN</em><em>RANDOM 3</em><em>TÌM NHANH</em></span>
+                </label>
+                {% endfor %}
+            </div>
+            <button class="btn green" type="submit">Áp dụng phong cách phòng đấu</button>
+        </form>
+    </div>
+    <div class="panel admin-system-features-panel"><h2>🎛️ Bật/tắt tính năng hệ thống</h2><p class="admin-feature-help"><strong>Rank đơn</strong> và <strong>Random 3 chọn 1</strong> là hai chế độ thi đấu Rank riêng. Khi tắt Rank đơn, Random 3 chọn 1 được bắt buộc bật để người chơi vẫn có thể thi đấu Rank. Công tắc BXH công khai không ảnh hưởng đến hai chế độ này. Trận đang thi đấu không bị can thiệp.</p><form method="post" action="{{ url_for('admin_update_system_features') }}" class="system-toggle-grid">{% for key,label in {'friendly_enabled':'Giao hữu thường','rank_standard_enabled':'Rank đơn','friendly_random3_enabled':'Random 3 chọn 1','lobby_chat_enabled':'Chat Sảnh','room_chat_enabled':'Chat Phòng','registration_codes_enabled':'Mã đăng ký','announcements_enabled':'Thông báo','quick_match_enabled':'Tìm Nhanh','repeat_opponent_rp_enabled':'Giảm RP khi gặp lại cùng đối thủ','match_history_all_enabled':'Xem lịch sử toàn hệ thống'}.items() %}<label class="admin-permission-option"><span>{{ label }}</span><span class="admin-switch"><input type="checkbox" name="{{ key }}" value="1" {% if system_features.get(key) %}checked{% endif %}><span class="admin-switch-track"></span></span></label>{% endfor %}
 <label class="admin-permission-option admin-public-ranking-option">
     <span>BXH công khai (không cần đăng nhập)</span>
     <span class="admin-switch">
