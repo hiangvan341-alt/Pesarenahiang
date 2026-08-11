@@ -3,7 +3,7 @@
 {% block content %}
 {% set room_room_viewer_is_host = (current_user.id|string == room.host_user_id|string) %}
 {% set room_viewer_is_guest = (room.guest_user_id and current_user.id|string == room.guest_user_id|string) %}
-<div id="roomLiveShell" class="room-view-shell room-layout-v137" data-room-style="{{ room_visual_style|default('champions-night') }}" data-room-state-key="{{ initial_room_state_key|e }}" data-room-status="{{ room.status|e }}">
+<div id="roomLiveShell" class="room-view-shell room-layout-v137" data-room-style="{{ room_visual_style|default('default') }}" data-room-state-key="{{ initial_room_state_key|e }}" data-room-status="{{ room.status|e }}">
 
 {% include "_streak_animation.html" %}
 

@@ -17,7 +17,7 @@
 }
 </style>
 {% if room_action_message %}<div class="flash {{ room_action_category or 'success' }} room-htmx-message">{{ room_action_message }}</div>{% endif %}
-<div class="room-view-shell room-layout-v137" data-room-style="{{ room_visual_style|default('champions-night') }}">
+<div class="room-view-shell room-layout-v137" data-room-style="{{ room_visual_style|default('default') }}">
     <div class="room-stage-topbar panel">
         <img class="room-stage-arena-logo" src="https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/pes-arena-room-logo.webp" alt="PES Arena" loading="eager">
         <div class="room-stage-title-wrap">

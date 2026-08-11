@@ -14,8 +14,9 @@ ROOM_TEMPLATES = [
 CSS = (ROOT / "static/style.css").read_text(encoding="utf-8")
 
 
-def test_five_new_styles_are_available_in_admin_and_css():
+def test_default_plus_five_new_styles_are_available_in_admin_and_css():
     styles = (
+        "default",
         "champions-night", "frozen-tech", "ember-rivalry",
         "royal-gold", "mono-tactical",
     )
@@ -54,7 +55,8 @@ def test_theme_styles_cover_room_actions_and_states():
 def test_styles_change_structure_but_keep_button_colors_and_stadiums_visible():
     assert "Room styles change structure, never the action color language" in CSS
     for marker in (
-        "Broadcast Pro", "Hex Arena", "Glass Deck", "Tunnel Match", "Tactical Board",
+        "Mặc định", "Hoàng Gia", "Cyber Neon", "Sân Cỏ Năng Lượng",
+        "Khung Năng Lượng", "Thiết Giáp",
     ):
         assert marker in APP
     for color in ("#0879ff", "#8b35ff", "#43d99a", "#ffd65e", "#ef7379"):
@@ -65,7 +67,7 @@ def test_styles_change_structure_but_keep_button_colors_and_stadiums_visible():
 
 
 if __name__ == "__main__":
-    test_five_new_styles_are_available_in_admin_and_css()
+    test_default_plus_five_new_styles_are_available_in_admin_and_css()
     test_room_style_reaches_full_and_polling_room_views()
     test_rank_single_label_is_consistent_in_room_and_admin()
     test_theme_styles_cover_room_actions_and_states()
