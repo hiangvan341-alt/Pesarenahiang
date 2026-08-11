@@ -51,8 +51,22 @@ def test_theme_styles_cover_room_actions_and_states():
         assert selector in CSS
 
 
+def test_styles_change_structure_but_keep_button_colors_and_stadiums_visible():
+    assert "Room styles change structure, never the action color language" in CSS
+    for marker in (
+        "Broadcast Pro", "Hex Arena", "Glass Deck", "Tunnel Match", "Tactical Board",
+    ):
+        assert marker in APP
+    for color in ("#0879ff", "#8b35ff", "#43d99a", "#ffd65e", "#ef7379"):
+        assert color in CSS
+    for asset in ("stadium-blue.webp", "stadium-red.webp", "center-stadium2.webp"):
+        assert asset in CSS
+    assert "background:rgba(3,11,23,.54)!important" in CSS
+
+
 if __name__ == "__main__":
     test_five_new_styles_are_available_in_admin_and_css()
     test_room_style_reaches_full_and_polling_room_views()
     test_rank_single_label_is_consistent_in_room_and_admin()
     test_theme_styles_cover_room_actions_and_states()
+    test_styles_change_structure_but_keep_button_colors_and_stadiums_visible()

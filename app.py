@@ -615,11 +615,11 @@ def system_feature_enabled(key: str) -> bool:
 ROOM_STYLE_SETTING_KEY = "room_visual_style"
 ROOM_STYLE_DEFAULT = "champions-night"
 ROOM_STYLE_OPTIONS = {
-    "champions-night": "Champions Night",
-    "frozen-tech": "Frozen Tech",
-    "ember-rivalry": "Ember Rivalry",
-    "royal-gold": "Royal Gold",
-    "mono-tactical": "Mono Tactical",
+    "champions-night": "Broadcast Pro",
+    "frozen-tech": "Hex Arena",
+    "ember-rivalry": "Glass Deck",
+    "royal-gold": "Tunnel Match",
+    "mono-tactical": "Tactical Board",
 }
 
 

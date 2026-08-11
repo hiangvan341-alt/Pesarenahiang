@@ -5434,6 +5434,102 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
 @media(max-width:1250px){.admin-room-style-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.admin-room-style-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.admin-room-style-grid{grid-template-columns:1fr}}
+
+/* V1.14.41.83 - Room styles change structure, never the action color language */
+.room-layout-v137[data-room-style] .room-arena-frame{
+  background-image:linear-gradient(rgba(2,8,17,.16),rgba(2,8,17,.28)),url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/room-texture-dark.webp")!important;
+  background-position:center!important;background-size:cover!important;
+}
+.room-layout-v137[data-room-style] .room-team-card.home{
+  background-image:linear-gradient(rgba(3,25,64,.06),rgba(2,15,38,.14)),url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/stadium-blue.webp")!important;
+  background-position:center!important;background-size:cover!important;
+}
+.room-layout-v137[data-room-style] .room-team-card.away{
+  background-image:linear-gradient(rgba(67,3,25,.06),rgba(37,2,17,.14)),url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/stadium-red.webp")!important;
+  background-position:center!important;background-size:cover!important;
+}
+.room-layout-v137[data-room-style] .room-center-stage-plain{
+  background-image:linear-gradient(rgba(2,9,18,.08),rgba(2,9,18,.18)),url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/center-stadium2.webp")!important;
+  background-position:center!important;background-size:cover!important;
+}
+.room-layout-v137[data-room-style] .room-center-mode-zone,
+.room-layout-v137[data-room-style] .room-center-random3-zone,
+.room-layout-v137[data-room-style] .room-result-review,
+.room-layout-v137[data-room-style] .room-center-score-panel,
+.room-layout-v137[data-room-style] .room-confirmed-center-actions,
+.room-layout-v137[data-room-style] .room-center-state-pill{
+  background:rgba(3,11,23,.54)!important;color:#f8fafc!important;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+/* Restore the fixed semantic colors for every style and every room state. */
+.room-layout-v137[data-room-style] .room-mode-select-btn.mode-ranked{background:linear-gradient(135deg,#0879ff,#15c5ff)!important;border-color:rgba(96,205,255,.72)!important;color:#fff!important;box-shadow:0 8px 20px rgba(0,139,255,.34)!important}
+.room-layout-v137[data-room-style] .room-mode-select-btn.mode-random3,
+.room-layout-v137[data-room-style] .room-center-random-trigger.random3-trigger,
+.room-layout-v137[data-room-style] .room-center-random3-card button{background:linear-gradient(135deg,#8b35ff,#f02fb6)!important;border-color:rgba(238,114,255,.72)!important;color:#fff!important;box-shadow:0 8px 20px rgba(196,45,255,.34)!important}
+.room-layout-v137[data-room-style] .room-quick-match-btn,
+.room-layout-v137[data-room-style] .room-center-action-btn.green,
+.room-layout-v137[data-room-style] .room-submit-result-btn,
+.room-layout-v137[data-room-style] .room-result-btn.confirm{background:linear-gradient(180deg,#43d99a,#24a970)!important;border-color:#61e2ac!important;color:#04160f!important;box-shadow:0 8px 20px rgba(36,169,112,.28)!important}
+.room-layout-v137[data-room-style] .room-center-action-btn.gold{background:linear-gradient(180deg,#ffd65e,#e3a919)!important;border-color:#ffdf76!important;color:#171007!important;box-shadow:0 8px 20px rgba(227,169,25,.28)!important}
+.room-layout-v137[data-room-style] .room-center-action-btn.red,
+.room-layout-v137[data-room-style] .room-guest-card-kick-btn,
+.room-layout-v137[data-room-style] .room-result-btn.disagree{background:linear-gradient(180deg,#ef7379,#c84d54)!important;border-color:#f58a8f!important;color:#1a090a!important;box-shadow:0 8px 20px rgba(200,77,84,.28)!important}
+.room-layout-v137[data-room-style] .room-center-action-btn.gray{background:linear-gradient(180deg,#172432,#101a25)!important;border-color:#314356!important;color:#e0e7ee!important;box-shadow:0 8px 20px rgba(0,0,0,.24)!important}
+
+/* 1. Broadcast Pro: rounded television match cards and lower-third headings. */
+.room-layout-v137[data-room-style="champions-night"] .room-side-card{border-radius:30px 30px 18px 18px!important;overflow:hidden!important;box-shadow:0 24px 48px rgba(0,0,0,.42)!important}
+.room-layout-v137[data-room-style="champions-night"] .room-player-heading-plain{margin:-16px -14px 0!important;padding:16px 18px!important;background:rgba(3,10,23,.62)!important;backdrop-filter:blur(9px);border-bottom:3px solid rgba(255,255,255,.18)!important}
+.room-layout-v137[data-room-style="champions-night"] .room-center-stage-plain{border-radius:18px!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 24px 48px rgba(0,0,0,.34)!important}
+.room-layout-v137[data-room-style="champions-night"] .room-center-vs-image{padding:12px;border-radius:50%;background:rgba(2,8,20,.34)}
+
+/* 2. Hex Arena: clipped player bays and hexagonal center badge. */
+.room-layout-v137[data-room-style="frozen-tech"] .room-side-card{border-radius:0!important;clip-path:polygon(8% 0,92% 0,100% 7%,100% 93%,92% 100%,8% 100%,0 93%,0 7%);padding-inline:22px!important}
+.room-layout-v137[data-room-style="frozen-tech"] .room-player-heading-plain{border:1px solid rgba(255,255,255,.18)!important;clip-path:polygon(7% 0,93% 0,100% 24%,93% 100%,7% 100%,0 76%);background:rgba(3,10,23,.38)!important;padding-inline:20px!important}
+.room-layout-v137[data-room-style="frozen-tech"] .room-center-stage-plain{border-radius:0!important;clip-path:polygon(10% 0,90% 0,100% 8%,100% 92%,90% 100%,10% 100%,0 92%,0 8%)}
+.room-layout-v137[data-room-style="frozen-tech"] .room-center-vs-image{padding:15px;clip-path:polygon(25% 5%,75% 5%,98% 50%,75% 95%,25% 95%,2% 50%);background:rgba(2,8,20,.42)}
+
+/* 3. Glass Deck: floating transparent layers with visible stadium artwork. */
+.room-layout-v137[data-room-style="ember-rivalry"] .room-side-card{border-radius:24px!important;border:1px solid rgba(255,255,255,.28)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 24px 55px rgba(0,0,0,.38)!important}
+.room-layout-v137[data-room-style="ember-rivalry"] .room-side-card::before{opacity:.08!important}
+.room-layout-v137[data-room-style="ember-rivalry"] .room-player-heading-plain{margin:0 8px;padding:14px;border:1px solid rgba(255,255,255,.2)!important;border-radius:18px;background:rgba(3,10,23,.26)!important;backdrop-filter:blur(12px)}
+.room-layout-v137[data-room-style="ember-rivalry"] .room-card-club-area{margin:12px 8px;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:rgba(3,10,23,.12);backdrop-filter:blur(3px)}
+.room-layout-v137[data-room-style="ember-rivalry"] .room-center-stage-plain{border-radius:28px!important;border:1px solid rgba(255,255,255,.24)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 28px 58px rgba(0,0,0,.36)!important}
+
+/* 4. Tunnel Match: player cards lean toward a recessed central tunnel. */
+.room-layout-v137[data-room-style="royal-gold"] .room-arena-frame{perspective:1400px}
+.room-layout-v137[data-room-style="royal-gold"] .room-team-card.home{transform:rotateY(3deg);transform-origin:right center;border-radius:24px 8px 8px 24px!important;box-shadow:-18px 22px 42px rgba(0,0,0,.42)!important}
+.room-layout-v137[data-room-style="royal-gold"] .room-team-card.away{transform:rotateY(-3deg);transform-origin:left center;border-radius:8px 24px 24px 8px!important;box-shadow:18px 22px 42px rgba(0,0,0,.42)!important}
+.room-layout-v137[data-room-style="royal-gold"] .room-center-stage-plain{transform:translateZ(-18px);border-radius:6px!important;box-shadow:inset 0 0 55px rgba(0,0,0,.64),0 22px 42px rgba(0,0,0,.4)!important}
+.room-layout-v137[data-room-style="royal-gold"] .room-player-heading-plain{background:linear-gradient(90deg,rgba(3,10,23,.68),rgba(3,10,23,.16))!important;border-bottom:0!important}
+.room-layout-v137[data-room-style="royal-gold"] .room-team-card.away .room-player-heading-plain{background:linear-gradient(270deg,rgba(3,10,23,.68),rgba(3,10,23,.16))!important}
+
+/* 5. Tactical Board: square modules, compact headers and pitch-like guides. */
+.room-layout-v137[data-room-style="mono-tactical"] .room-side-card,
+.room-layout-v137[data-room-style="mono-tactical"] .room-center-stage-plain{border-radius:3px!important;border-style:dashed!important;box-shadow:8px 8px 0 rgba(0,0,0,.38)!important}
+.room-layout-v137[data-room-style="mono-tactical"] .room-player-heading-plain{min-height:92px!important;margin:-6px -4px 0;padding:10px!important;border:1px solid rgba(255,255,255,.2)!important;border-radius:2px;background:rgba(3,10,23,.48)!important}
+.room-layout-v137[data-room-style="mono-tactical"] .room-card-club-area::before{content:"";position:absolute;inset:8%;z-index:-1;border:1px dashed rgba(255,255,255,.18);border-radius:50%}
+.room-layout-v137[data-room-style="mono-tactical"] .room-center-mode-zone,
+.room-layout-v137[data-room-style="mono-tactical"] .room-center-random3-zone,
+.room-layout-v137[data-room-style="mono-tactical"] .room-result-review{border-radius:2px!important;border-style:dashed!important}
+
+/* Button shape follows each room style while its semantic color stays fixed. */
+.room-layout-v137[data-room-style="champions-night"] :is(.room-mode-select-btn,.room-center-action-btn,.room-result-btn){border-radius:999px!important}
+.room-layout-v137[data-room-style="frozen-tech"] :is(.room-mode-select-btn,.room-center-action-btn,.room-result-btn){border-radius:0!important;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
+.room-layout-v137[data-room-style="ember-rivalry"] :is(.room-mode-select-btn,.room-center-action-btn,.room-result-btn){border-radius:15px!important;backdrop-filter:blur(8px)}
+.room-layout-v137[data-room-style="royal-gold"] :is(.room-mode-select-btn,.room-center-action-btn,.room-result-btn){border-radius:5px 16px 5px 16px!important}
+.room-layout-v137[data-room-style="mono-tactical"] :is(.room-mode-select-btn,.room-center-action-btn,.room-result-btn){border-radius:2px!important;letter-spacing:.045em;box-shadow:4px 4px 0 rgba(0,0,0,.5)!important}
+
+/* Admin previews communicate shape/layout; button colors stay identical. */
+.admin-room-style-card{--p1:#268cff;--p2:#20bd69;--p3:#e95362;background:rgba(5,14,26,.72)!important}
+.admin-room-style-stage i{background-image:url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/stadium-blue.webp")!important;background-size:cover!important}
+.admin-room-style-stage i:last-child{background-image:url("https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1.3.40/stadium-red.webp")!important;background-size:cover!important}
+.admin-room-style-buttons em:nth-child(1){background:linear-gradient(135deg,#0879ff,#15c5ff)!important;color:#fff}.admin-room-style-buttons em:nth-child(2){background:linear-gradient(135deg,#8b35ff,#f02fb6)!important;color:#fff}.admin-room-style-buttons em:nth-child(3){background:linear-gradient(180deg,#43d99a,#24a970)!important;color:#04160f}
+.style-preview-champions-night{border-radius:24px}.style-preview-champions-night .admin-room-style-stage i{border-radius:16px}
+.style-preview-frozen-tech{clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}.style-preview-frozen-tech .admin-room-style-stage i{clip-path:polygon(12% 0,88% 0,100% 12%,100% 88%,88% 100%,12% 100%,0 88%,0 12%);border-radius:0}
+.style-preview-ember-rivalry{border-color:rgba(255,255,255,.3);box-shadow:inset 0 1px rgba(255,255,255,.24);backdrop-filter:blur(10px)}
+.style-preview-royal-gold .admin-room-style-stage i:first-child{transform:perspective(150px) rotateY(8deg)}.style-preview-royal-gold .admin-room-style-stage i:last-child{transform:perspective(150px) rotateY(-8deg)}
+.style-preview-mono-tactical{border-style:dashed;border-radius:2px}.style-preview-mono-tactical .admin-room-style-stage i{border-style:dashed;border-radius:1px}
+@media(max-width:900px){.room-layout-v137[data-room-style="royal-gold"] .room-team-card{transform:none!important}}
 @media(max-width:900px){
   .room-layout-v137 .room-stage-arena-logo{width:clamp(120px,27vw,220px);max-height:62px}
 }

@@ -659,11 +659,11 @@
         <form method="post" action="{{ url_for('admin_update_room_visual_style') }}">
             <div class="admin-room-style-grid">
                 {% set style_descriptions = {
-                    'champions-night':'Xanh đêm và ánh bạc của sân khấu vô địch',
-                    'frozen-tech':'Cyan băng giá, đường sáng công nghệ',
-                    'ember-rivalry':'Than đỏ và cam lửa đầy đối kháng',
-                    'royal-gold':'Đen vàng sang trọng của nhà vô địch',
-                    'mono-tactical':'Xám chiến thuật, rõ nét và tối giản'
+                    'champions-night':'Khung truyền hình thể thao, bảng tên nổi và góc bo lớn',
+                    'frozen-tech':'Thẻ cầu thủ cắt góc lục giác, cụm VS dạng huy hiệu',
+                    'ember-rivalry':'Các lớp kính trong suốt, viền mảnh và chiều sâu mềm',
+                    'royal-gold':'Hai thẻ sân nghiêng vào đường hầm trung tâm',
+                    'mono-tactical':'Khung vuông, đường nét chiến thuật và bảng trạng thái gọn'
                 } %}
                 {% for value,label in room_style_options.items() %}
                 <label class="admin-room-style-card style-preview-{{ value }}">
