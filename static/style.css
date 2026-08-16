@@ -5854,3 +5854,21 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
   border:0 !important;
   outline:0 !important;
 }
+
+/* PES Arena V1.2.9.20 - QUAY QUAN button thicker */
+.room-layout-v137 .room-center-random-trigger .room-random-button-label,
+.room-layout-v137[data-room-style] .room-center-random-trigger .room-random-button-label{
+  min-height: 52px !important;
+  padding: 12px 22px !important;
+  border-radius: 13px !important;
+  font-size: 18px !important;
+  line-height: 1.1 !important;
+}
+@media(max-width:640px){
+  .room-layout-v137 .room-center-random-trigger .room-random-button-label,
+  .room-layout-v137[data-room-style] .room-center-random-trigger .room-random-button-label{
+    min-height: 48px !important;
+    padding: 10px 18px !important;
+    font-size: 17px !important;
+  }
+}

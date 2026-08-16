@@ -243,3 +243,7 @@
 - Identified .room-center-random-trigger and .random3-trigger as the purple/yellow wrapper layers.
 - Removed wrapper border, background and box-shadow in every room skin/state.
 - Preserved the original yellow QUAY QUAN button face.
+
+## V1.2.9.20 - Make QUAY QUAN button thicker
+- Increased the yellow QUAY QUAN button face height and padding.
+- Kept the no-outline/no-wrapper style from V1.2.9.19 unchanged.
