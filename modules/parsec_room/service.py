@@ -67,4 +67,5 @@ def build_room_parsec_context(room, viewer):
         "host_parsec_id": host.get("parsec_id"),
         "guest_parsec_id": guest.get("parsec_id"),
         "room_link": room.get("parsec_link"),
+        "discord_link": get_room_discord_link(),
     }

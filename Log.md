@@ -233,7 +233,8 @@
 - Removed the remaining Fhome outer frame from the host panel.
 - Kept both club frames disabled so neither side shows the inner frame overlay.
 
-## V1.2.9.17 - Guest direct-open Parsec link
-- Added “Mở Parsec” next to “Copy Link” for the guest view.
-- Opens the exact saved room Parsec URL in a new browser tab with noopener/noreferrer.
-- Kept Copy Link as an alternative.
+## V1.2.9.18 - Parsec link actions and Admin Discord link
+- Guest Parsec panel now shows the saved URL directly.
+- Mở Parsec is red; Copy Link is yellow and appears to its right.
+- Added a Discord link below Parsec for room members.
+- Admin can configure or remove the Discord URL from the System tab.

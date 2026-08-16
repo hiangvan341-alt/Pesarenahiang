@@ -45,21 +45,28 @@
         <div class="parsec-room-block">
             <div class="parsec-room-label">Link Parsec</div>
             {% if parsec_room.room_link %}
+            <a class="parsec-room-link-display" href="{{ parsec_room.room_link|e }}" target="_blank" rel="noopener noreferrer" title="{{ parsec_room.room_link|e }}">{{ parsec_room.room_link }}</a>
             <div class="parsec-guest-link-actions">
-                <button type="button" class="parsec-action-btn parsec-copy-link-btn" data-copy-text="{{ parsec_room.room_link|e }}">
-                    <span class="parsec-link-icon" aria-hidden="true">🔗</span>
-                    <span>Copy Link</span>
-                </button>
-                <a class="parsec-action-btn parsec-open-link-btn" href="{{ parsec_room.room_link|e }}" target="_blank" rel="noopener noreferrer">
-                    <span class="parsec-open-icon" aria-hidden="true">↗</span>
-                    <span>Mở Parsec</span>
-                </a>
+                <a class="parsec-action-btn parsec-open-link-btn" href="{{ parsec_room.room_link|e }}" target="_blank" rel="noopener noreferrer"><span>Mở Parsec</span></a>
+                <button type="button" class="parsec-action-btn parsec-copy-link-btn" data-copy-text="{{ parsec_room.room_link|e }}"><span>Copy Link</span></button>
             </div>
-            <p class="parsec-room-note"><span class="parsec-note-icon">ⓘ</span> Có thể bấm “Mở Parsec” để mở link trong tab mới, hoặc Copy Link để dùng thủ công.</p>
             {% else %}
             <div class="parsec-room-empty">Chủ phòng chưa gửi link Parsec.</div>
             {% endif %}
         </div>
     {% endif %}
+
+    <div class="parsec-room-block parsec-discord-block">
+        <div class="parsec-room-label">Discord</div>
+        {% if parsec_room.discord_link %}
+        <a class="parsec-discord-link" href="{{ parsec_room.discord_link|e }}" target="_blank" rel="noopener noreferrer" title="{{ parsec_room.discord_link|e }}">
+            <span class="parsec-discord-icon" aria-hidden="true">💬</span>
+            <span>Tham gia Discord</span>
+            <span aria-hidden="true">↗</span>
+        </a>
+        {% else %}
+        <div class="parsec-room-empty">Admin chưa thiết lập Link Discord.</div>
+        {% endif %}
+    </div>
 </section>
 {% endif %}

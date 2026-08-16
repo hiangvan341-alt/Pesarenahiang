@@ -231,3 +231,29 @@ html[data-theme="light"] .parsec-room-panel a.parsec-open-link-btn:hover{
   .parsec-guest-link-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
   .parsec-guest-link-actions .parsec-action-btn{width:100%}
 }
+
+/* PES Arena V1.2.9.18 - Parsec open/copy colors + Admin Discord link */
+.parsec-room-link-display{
+  display:block;width:100%;margin:5px 0 10px;padding:10px 12px;border:1px solid rgba(148,163,184,.22);border-radius:9px;
+  background:rgba(3,12,23,.55);color:#c9d6e7!important;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;
+}
+.parsec-room-link-display:hover{border-color:rgba(255,255,255,.35);color:#fff!important}
+.parsec-guest-link-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important;width:100%!important}
+.parsec-guest-link-actions .parsec-action-btn{width:100%!important;min-height:39px!important}
+.parsec-room-panel .parsec-open-link-btn,
+html[data-theme="light"] .parsec-room-panel .parsec-open-link-btn{
+  border-color:#ff5268!important;background:linear-gradient(180deg,#f0445d,#c91e3c)!important;color:#fff!important;box-shadow:0 7px 16px rgba(212,29,60,.24)!important;
+}
+.parsec-room-panel .parsec-open-link-btn:hover,
+html[data-theme="light"] .parsec-room-panel .parsec-open-link-btn:hover{background:linear-gradient(180deg,#ff5e73,#dc2947)!important;border-color:#ff7c8d!important}
+.parsec-room-panel .parsec-copy-link-btn,
+html[data-theme="light"] .parsec-room-panel .parsec-copy-link-btn{
+  border-color:#f3c24d!important;background:linear-gradient(180deg,#f6d36f,#dca72d)!important;color:#241805!important;box-shadow:0 7px 16px rgba(210,157,31,.2)!important;
+}
+.parsec-room-panel .parsec-copy-link-btn:hover,
+html[data-theme="light"] .parsec-room-panel .parsec-copy-link-btn:hover{background:linear-gradient(180deg,#ffe08a,#e5b63b)!important;border-color:#ffe18d!important;color:#171006!important}
+.parsec-discord-block{padding-top:14px;margin-top:16px!important;border-top:1px solid rgba(255,255,255,.09)}
+.parsec-discord-link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:42px;padding:9px 12px;border:1px solid rgba(130,119,255,.46);border-radius:9px;background:linear-gradient(180deg,rgba(88,101,242,.25),rgba(67,78,205,.18));color:#eef0ff!important;font-size:12px;font-weight:900;text-decoration:none;transition:.16s ease}
+.parsec-discord-link:hover{transform:translateY(-1px);border-color:rgba(152,143,255,.75);background:linear-gradient(180deg,rgba(88,101,242,.38),rgba(67,78,205,.28));color:#fff!important}
+.parsec-discord-icon{font-size:15px}
+@media(max-width:420px){.parsec-guest-link-actions{grid-template-columns:1fr!important}}

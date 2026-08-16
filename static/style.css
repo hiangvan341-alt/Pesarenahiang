@@ -5811,3 +5811,8 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
   background-image:none !important;
   content:none !important;
 }
+
+/* PES Arena V1.2.9.18 - Admin Discord room link */
+.admin-discord-link-form{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.admin-discord-link-form label{display:flex;flex:1 1 420px;flex-direction:column;gap:7px}
+.admin-discord-link-form input{width:100%}

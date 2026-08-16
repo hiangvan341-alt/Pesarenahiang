@@ -683,6 +683,34 @@ def get_quick_match_config():
     return cache_set(request_key, dict(config))
 
 
+DISCORD_ROOM_LINK_SETTING_KEY = "room_discord_link"
+
+def get_room_discord_link():
+    request_key = "_room_discord_link_cached"
+    cached = cache_get(request_key)
+    if isinstance(cached, str):
+        return cached
+    cached = ttl_cache_get("room_discord_link")
+    if isinstance(cached, str):
+        return cache_set(request_key, cached)
+    value = ""
+    try:
+        result = execute_query(
+            db.table("system_settings").select("setting_value")
+            .eq("setting_key", DISCORD_ROOM_LINK_SETTING_KEY).limit(1),
+            "get_room_discord_link", attempts=2,
+        )
+        raw = ((result.data or [{}])[0]).get("setting_value")
+        if isinstance(raw, dict):
+            value = str(raw.get("url") or "").strip()
+        elif isinstance(raw, str):
+            value = raw.strip()
+    except Exception as exc:
+        print(f"get_room_discord_link warning: {exc}")
+    ttl_cache_set("room_discord_link", value, 60)
+    return cache_set(request_key, value)
+
+
 REPEAT_OPPONENT_CONFIG_SETTING_KEY = "repeat_opponent_rp_config"
 REPEAT_OPPONENT_WINNER_FACTOR_DEFAULTS = [100, 60, 30, 0]
 REPEAT_OPPONENT_LOSER_FACTOR_DEFAULTS = [100, 70, 40, 10]

@@ -28,6 +28,7 @@ def register_routes(context):
             "repeat_opponent_rp_config": get_repeat_opponent_rp_config(),
             "weekly_rp_reward_config": get_weekly_rp_reward_config(),
             "duplicate_ip_warning_config": get_duplicate_ip_warning_config(),
+            "room_discord_link": get_room_discord_link(),
         }
 
     @app.route("/admin/system/maintenance", methods=["POST"])
@@ -117,6 +118,41 @@ def register_routes(context):
         flash("Đã lưu thiết lập cảnh báo IP.", "success")
         return redirect_admin("users")
 
+
+
+    @app.route("/admin/system/room-discord-link", methods=["POST"])
+    @login_required
+    @admin_required
+    @admin_permission_required("system_features_manage")
+    def admin_update_room_discord_link():
+        from urllib.parse import urlsplit
+        value = (request.form.get("discord_link") or "").strip()
+        if len(value) > 500:
+            flash("Link Discord quá dài.", "danger")
+            return redirect_admin("system")
+        if value:
+            try:
+                parsed = urlsplit(value)
+            except Exception:
+                parsed = None
+            host = ((parsed.hostname or "").lower() if parsed else "")
+            allowed = host == "discord.gg" or host == "discord.com" or host.endswith(".discord.com")
+            if not parsed or parsed.scheme.lower() != "https" or not allowed:
+                flash("Link Discord phải là link HTTPS thuộc discord.gg hoặc discord.com.", "danger")
+                return redirect_admin("system")
+        execute_query(
+            db.table("system_settings").upsert({
+                "setting_key": DISCORD_ROOM_LINK_SETTING_KEY,
+                "setting_value": {"url": value},
+                "updated_at": now_iso(),
+            }, on_conflict="setting_key"),
+            "update_room_discord_link", attempts=2,
+        )
+        ttl_cache_delete("room_discord_link")
+        cache_delete("_room_discord_link_cached")
+        log_admin_action("Cập nhật link Discord phòng đấu", "system", details={"url": value})
+        flash("Đã lưu link Discord dùng trong phòng đấu." if value else "Đã xóa link Discord khỏi phòng đấu.", "success")
+        return redirect_admin("system")
 
     @app.route("/admin/system/quick-match", methods=["POST"])
     @login_required
