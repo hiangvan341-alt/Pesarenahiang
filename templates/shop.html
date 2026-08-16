@@ -45,24 +45,41 @@
                     <div><strong>Chọn gói Zcoin</strong><small>Gói lớn nhận nhiều Zcoin hơn</small></div>
                 </div>
             </div>
-            <div class="shop3-package-grid">
-                <button class="shop3-package" type="button" data-topup-package data-amount="50000" data-zcoin="1000">
-                    <span>50.000đ</span><strong>1.000</strong><small>Zcoin</small>
+            <div class="shop3-package-table" role="table" aria-label="Bảng quy đổi nạp Zcoin">
+                <div class="shop3-package-table-head" role="row">
+                    <span role="columnheader">Số tiền</span>
+                    <span role="columnheader">Bonus</span>
+                    <span role="columnheader">Tổng nhận</span>
+                </div>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="50000" data-zcoin="1000" role="row">
+                    <span class="shop3-package-cell" role="cell">50.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">—</span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">1.000 Zcoin</span>
                 </button>
-                <button class="shop3-package" type="button" data-topup-package data-amount="100000" data-zcoin="2100">
-                    <span>100.000đ</span><strong>2.100</strong><small>Zcoin</small><em>+5%</em>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="100000" data-zcoin="2200" role="row">
+                    <span class="shop3-package-cell" role="cell">100.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">+200</span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">2.200 Zcoin</span>
                 </button>
-                <button class="shop3-package" type="button" data-topup-package data-amount="200000" data-zcoin="4400">
-                    <span>200.000đ</span><strong>4.400</strong><small>Zcoin</small><em>+10%</em>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="200000" data-zcoin="4600" role="row">
+                    <span class="shop3-package-cell" role="cell">200.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">+600</span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">4.600 Zcoin</span>
                 </button>
-                <button class="shop3-package" type="button" data-topup-package data-amount="300000" data-zcoin="6900">
-                    <span>300.000đ</span><strong>6.900</strong><small>Zcoin</small><em>+15%</em>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="300000" data-zcoin="7800" role="row">
+                    <span class="shop3-package-cell" role="cell">300.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">+1.800 <span aria-hidden="true">⭐</span></span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">7.800 Zcoin <span aria-hidden="true">🔥</span></span>
                 </button>
-                <button class="shop3-package is-popular" type="button" data-topup-package data-amount="500000" data-zcoin="12000">
-                    <b>PHỔ BIẾN</b><span>500.000đ</span><strong>12.000</strong><small>Zcoin</small><em>+20%</em>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="500000" data-zcoin="13500" role="row">
+                    <span class="shop3-package-cell" role="cell">500.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">+3.500</span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">13.500 Zcoin</span>
                 </button>
-                <button class="shop3-package is-best" type="button" data-topup-package data-amount="1000000" data-zcoin="26000">
-                    <b>TỐT NHẤT</b><span>1.000.000đ</span><strong>26.000</strong><small>Zcoin</small><em>+30%</em>
+                <button class="shop3-package-row" type="button" data-topup-package data-amount="1000000" data-zcoin="28000" role="row">
+                    <span class="shop3-package-cell" role="cell">1.000.000đ</span>
+                    <span class="shop3-package-cell shop3-package-bonus" role="cell">+8.000</span>
+                    <span class="shop3-package-cell shop3-package-total" role="cell">28.000 Zcoin</span>
                 </button>
             </div>
 
@@ -97,13 +114,13 @@
             </div>
             <div class="shop3-transfer-summary">
                 <span>Gói đang chọn</span>
-                <div><b id="topupSelectedAmount">200.000đ</b><strong><span id="topupSelectedZcoin">4.400</span> Zcoin</strong></div>
+                <div><b id="topupSelectedAmount">300.000đ</b><strong><span id="topupSelectedZcoin">7.800</span> Zcoin</strong></div>
                 <small>Hãy chuyển đúng số tiền của gói để Admin đối soát nhanh hơn.</small>
             </div>
             <div class="shop3-transfer-content">
                 <span>NỘI DUNG CHUYỂN KHOẢN</span>
                 <strong>Tên chủ TK ngân hàng + Số tiền</strong>
-                <code id="topupTransferExample">NGUYEN VAN A 200000</code>
+                <code id="topupTransferExample">NGUYEN VAN A 300000</code>
                 <p>Ví dụ trên sẽ tự đổi số tiền khi bạn chọn gói khác. Hãy thay <b>NGUYEN VAN A</b> bằng đúng tên chủ tài khoản ngân hàng dùng để chuyển.</p>
             </div>
             <div class="shop3-admin-notice">

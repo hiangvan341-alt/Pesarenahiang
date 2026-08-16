@@ -43,3 +43,78 @@ html[data-theme="light"] .shop3-luckybox-spotlight{background:radial-gradient(ci
 @media(max-width:700px){.shop3-topup{padding:17px;border-radius:18px}.shop3-topup-head{flex-direction:column}.shop3-topup-balance{width:100%;text-align:left}.shop3-topup-balance strong{justify-content:flex-start}.shop3-package-grid{grid-template-columns:repeat(2,1fr)}.shop3-topup-payment{grid-template-columns:1fr}.shop3-qr-card{grid-row:auto}.shop3-topup-head h2{font-size:23px}}
 @media(max-width:420px){.shop3-package-grid{grid-template-columns:1fr 1fr}.shop3-package{min-height:105px;padding:12px 10px}.shop3-package>strong{font-size:21px}}
 html[data-theme="light"] .shop3-topup{background:radial-gradient(circle at 86% 10%,rgba(242,189,66,.14),transparent 30%),linear-gradient(145deg,#f7faff,#eef4fb);color:#172033}html[data-theme="light"] .shop3-topup-head p,html[data-theme="light"] .shop3-topup-title-row small{color:#5f7288}html[data-theme="light"] .shop3-topup-balance,html[data-theme="light"] .shop3-package,html[data-theme="light"] .shop3-qr-card,html[data-theme="light"] .shop3-transfer-summary,html[data-theme="light"] .shop3-transfer-content,html[data-theme="light"] .shop3-admin-notice,html[data-theme="light"] .shop3-topup-steps li{background:#fff;color:#33455b}html[data-theme="light"] .shop3-package>strong,html[data-theme="light"] .shop3-topup-title-row strong,html[data-theme="light"] .shop3-beneficiary strong,html[data-theme="light"] .shop3-transfer-summary b{color:#172033}html[data-theme="light"] .shop3-beneficiary{background:#edf3fa}
+
+/* V1.2.9.12 - Bảng nạp Zcoin 3 cột, đồng nhất font/cỡ chữ */
+.shop3-package-table{
+  width:100%;
+  overflow:hidden;
+  border:1px solid #2b4565;
+  border-radius:15px;
+  background:rgba(7,17,30,.72);
+  font-family:inherit;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.25;
+}
+.shop3-package-table-head,
+.shop3-package-row{
+  display:grid;
+  grid-template-columns:minmax(115px,1fr) minmax(90px,.72fr) minmax(150px,1.25fr);
+  align-items:center;
+  width:100%;
+}
+.shop3-package-table-head{
+  min-height:43px;
+  background:rgba(24,48,78,.72);
+  border-bottom:1px solid #355270;
+  color:#b8c9dc;
+}
+.shop3-package-table-head>span,
+.shop3-package-cell{
+  min-width:0;
+  padding:11px 14px;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-style:normal !important;
+  font-weight:800 !important;
+  line-height:1.25 !important;
+  letter-spacing:0 !important;
+  text-transform:none !important;
+  white-space:nowrap;
+}
+.shop3-package-table-head>span+span,
+.shop3-package-cell+.shop3-package-cell{border-left:1px solid rgba(70,98,128,.36)}
+.shop3-package-row{
+  min-height:48px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-bottom:1px solid rgba(53,82,116,.46);
+  background:transparent;
+  color:#edf5ff;
+  text-align:left;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  transition:background .15s ease,box-shadow .15s ease;
+}
+.shop3-package-row:last-child{border-bottom:0}
+.shop3-package-row:hover{background:rgba(47,91,139,.18)}
+.shop3-package-row.is-selected{background:rgba(242,189,66,.10);box-shadow:inset 3px 0 #f2bd42}
+.shop3-package-bonus{color:#68e0a9}
+.shop3-package-total{color:#fff;font-weight:800 !important}
+html[data-theme="light"] .shop3-package-table{background:#fff;border-color:#ccd8e5}
+html[data-theme="light"] .shop3-package-table-head{background:#edf3fa;border-color:#ccd8e5;color:#53677e}
+html[data-theme="light"] .shop3-package-row{color:#172033;border-color:#dbe4ee}
+html[data-theme="light"] .shop3-package-row:hover{background:#f4f8fc}
+html[data-theme="light"] .shop3-package-row.is-selected{background:#fff8e5}
+html[data-theme="light"] .shop3-package-total{color:#172033}
+@media(max-width:700px){
+  .shop3-package-table{font-size:13px}
+  .shop3-package-table-head,.shop3-package-row{grid-template-columns:minmax(92px,1fr) minmax(68px,.7fr) minmax(128px,1.2fr)}
+  .shop3-package-table-head>span,.shop3-package-cell{padding:10px 8px;font-size:13px !important}
+}
+@media(max-width:430px){
+  .shop3-package-table-head,.shop3-package-row{grid-template-columns:minmax(84px,1fr) minmax(62px,.68fr) minmax(116px,1.18fr)}
+  .shop3-package-table-head>span,.shop3-package-cell{padding:9px 6px;font-size:12px !important}
+}

@@ -216,3 +216,16 @@
 - Applied Fhome.webp to host side panel and FAway.webp to away side panel.
 - Applied CLBH.webp to host club area and CLBA.webp to away club area.
 - Tuned spacing for random 3 chọn 1 cards and normal club display so the new frames fit cleanly.
+
+## V1.2.9.12 - Zcoin top-up table 3 columns
+- Converted top-up packages to 3 columns: Số tiền / Bonus / Tổng nhận.
+- Updated rates to 1,000 / 2,200 / 4,600 / 7,800 / 13,500 / 28,000 Zcoin.
+- Highlighted the 300,000đ package with star/fire markers.
+- Forced one inherited font, uniform size and weight across all table cells.
+- Default selected package is now 300,000đ.
+
+## V1.2.9.13 - Fix Zcoin 300k icon columns
+- Removed special featured styling from the 300.000đ package.
+- Moved ⭐ into the Bonus column after +1.800.
+- Kept 🔥 in the Total received column after 7.800 Zcoin.
+- Preserved the same font and font size across all three columns.

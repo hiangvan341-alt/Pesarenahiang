@@ -16,7 +16,7 @@
     }
     if(packages.length){
       packages.forEach(button=>button.addEventListener('click',()=>selectTopupPackage(button)));
-      selectTopupPackage(Array.from(packages).find(button=>button.dataset.amount==='200000')||packages[0]);
+      selectTopupPackage(Array.from(packages).find(button=>button.dataset.amount==='300000')||packages[0]);
     }
 
     const modal=document.getElementById('shop3Preview');
