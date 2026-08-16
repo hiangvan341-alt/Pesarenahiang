@@ -5816,3 +5816,41 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
 .admin-discord-link-form{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
 .admin-discord-link-form label{display:flex;flex:1 1 420px;flex-direction:column;gap:7px}
 .admin-discord-link-form input{width:100%}
+
+/* PES Arena V1.2.9.19 - QUAY QUAN: remove decorative wrapper borders/backgrounds */
+/* The visible yellow QUAY QUAN label is the actual button face. The outer
+   .room-center-random-trigger / .random3-trigger must stay transparent. */
+.room-layout-v137 .room-center-random-trigger,
+.room-layout-v137 .room-center-random-trigger:not(.disabled),
+.room-layout-v137 .room-center-random-trigger.random3-trigger,
+.room-layout-v137[data-room-style] .room-center-random-trigger,
+.room-layout-v137[data-room-style] .room-center-random-trigger:not(.disabled),
+.room-layout-v137[data-room-style] .room-center-random-trigger.random3-trigger{
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+  border-radius:0 !important;
+}
+.room-layout-v137 .room-center-random-trigger:not(.disabled):hover,
+.room-layout-v137 .room-center-random-trigger:not(.disabled):active,
+.room-layout-v137[data-room-style] .room-center-random-trigger:not(.disabled):hover,
+.room-layout-v137[data-room-style] .room-center-random-trigger:not(.disabled):active{
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+  transform:none !important;
+}
+/* Keep only the original yellow button face. */
+.room-layout-v137 .room-center-random-trigger .room-random-button-label,
+.room-layout-v137[data-room-style] .room-center-random-trigger .room-random-button-label{
+  background:linear-gradient(180deg,#ffe18a,#e7b844) !important;
+  color:#15100a !important;
+  border:0 !important;
+  outline:0 !important;
+}

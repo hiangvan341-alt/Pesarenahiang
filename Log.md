@@ -238,3 +238,8 @@
 - Mở Parsec is red; Copy Link is yellow and appears to its right.
 - Added a Discord link below Parsec for room members.
 - Admin can configure or remove the Discord URL from the System tab.
+
+## V1.2.9.19 - Remove QUAY QUAN wrapper outlines
+- Identified .room-center-random-trigger and .random3-trigger as the purple/yellow wrapper layers.
+- Removed wrapper border, background and box-shadow in every room skin/state.
+- Preserved the original yellow QUAY QUAN button face.
