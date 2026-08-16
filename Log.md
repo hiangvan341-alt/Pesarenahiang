@@ -211,3 +211,8 @@
 - Polling và watchdog lời mời tiếp tục chạy trên trang `/room/...`.
 - Không thay đổi điều kiện backend: phòng đủ hai người hoặc đã thi đấu vẫn không nhận lời mời mới.
 - Kiểm tra hồi quy toàn bộ: 166/166 test đạt.
+
+## V1.2.9.11 - Add host/away frames and club frames to room 3 chọn 1 layout
+- Applied Fhome.webp to host side panel and FAway.webp to away side panel.
+- Applied CLBH.webp to host club area and CLBA.webp to away club area.
+- Tuned spacing for random 3 chọn 1 cards and normal club display so the new frames fit cleanly.
