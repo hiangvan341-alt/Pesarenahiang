@@ -5618,3 +5618,31 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
   .room-layout-v137 .room-stage-topbar{padding-top:86px!important}
   .room-layout-v137 .room-stage-arena-logo{top:12px;width:170px;max-height:58px;transform:translateX(-50%)}
 }
+
+/* PES Arena V1.2.9.9 - Random 3 lựa chọn nằm trong khung của từng người chơi */
+.room-card-club-area--random3{width:100%;padding:12px 10px!important;display:flex!important;align-items:center;justify-content:center;overflow:visible!important}
+.room-side-random3-selector{width:100%;max-width:390px;margin:0 auto;padding:10px;border-radius:16px;border:1px solid rgba(255,255,255,.16);background:rgba(3,10,24,.66);backdrop-filter:blur(5px);box-shadow:0 12px 30px rgba(0,0,0,.24)}
+.room-team-card.home .room-side-random3-selector{border-color:rgba(52,139,255,.5);box-shadow:0 0 30px rgba(31,113,255,.13),0 12px 30px rgba(0,0,0,.24)}
+.room-team-card.away .room-side-random3-selector{border-color:rgba(255,76,91,.5);box-shadow:0 0 30px rgba(255,44,72,.12),0 12px 30px rgba(0,0,0,.24)}
+.room-side-random3-title{text-align:center;margin:0 0 9px;font-size:13px;line-height:1.2;font-weight:1000;letter-spacing:.7px;color:#fff;text-shadow:0 2px 9px rgba(0,0,0,.65)}
+.room-side-random3-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:100%}
+.room-side-random3-card{min-width:0;margin:0;padding:9px 5px 7px;border-radius:12px;border:1px solid rgba(190,204,235,.3);background:linear-gradient(160deg,rgba(17,31,57,.94),rgba(39,15,57,.93));display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;box-shadow:0 7px 16px rgba(0,0,0,.25);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.room-side-random3-card:hover{transform:translateY(-3px);border-color:rgba(225,126,255,.75);box-shadow:0 11px 22px rgba(0,0,0,.32)}
+.room-side-random3-card img,.room-side-random3-card .friendly-random3-placeholder{width:64px!important;height:64px!important;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 5px 7px rgba(0,0,0,.42))}
+.room-side-random3-card .friendly-random3-placeholder{display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08);font-size:28px;font-weight:900;color:#fff}
+.room-side-random3-card strong{display:-webkit-box;width:100%;min-height:31px;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-align:center;font-size:11px;line-height:1.35;color:#fff;word-break:break-word}
+.room-side-random3-card button{width:100%;min-height:34px;border:0;border-radius:9px;padding:6px 3px;background:linear-gradient(135deg,#8b35ff,#ef2fbd);box-shadow:0 5px 14px rgba(188,44,255,.27);color:#fff;font-size:10px;font-weight:1000;cursor:pointer}
+.room-team-card.home .room-side-random3-card button{background:linear-gradient(135deg,#155be8,#3c9cff)}
+.room-team-card.away .room-side-random3-card button{background:linear-gradient(135deg,#dc2445,#ff5b6d)}
+.room-side-random3-picked,.room-side-random3-opponent-state{width:min(100%,330px);margin:auto;padding:20px 14px;border-radius:15px;text-align:center;border:1px solid rgba(74,226,149,.3);background:rgba(18,105,65,.18);color:#a9ffd1;font-weight:950;line-height:1.4}
+.room-side-random3-picked small,.room-side-random3-opponent-state small{display:block;margin-top:5px;color:rgba(235,244,255,.72);font-size:11px;font-weight:700}
+.room-side-random3-opponent-state{border-color:rgba(255,255,255,.16);background:rgba(2,9,21,.48);color:#fff}
+.room-center-random3-status{width:min(100%,310px);padding:13px 11px;margin:0 auto 14px;border:1px solid rgba(210,82,255,.42);border-radius:15px;background:rgba(21,8,36,.68);box-shadow:0 8px 24px rgba(0,0,0,.24);text-align:center}
+.room-center-random3-status .room-center-mode-title{margin-bottom:9px;font-size:15px}
+.room-center-random3-status-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.room-center-random3-status-row>span{display:flex;flex-direction:column;gap:2px;padding:7px 4px;border-radius:9px;background:rgba(255,255,255,.06);font-size:9px;font-weight:900;color:#cbd5e7}
+.room-center-random3-status-row>span strong{font-size:10px;color:#fff}
+.room-center-random3-status-row>span.home strong{color:#79b8ff}.room-center-random3-status-row>span.away strong{color:#ff8994}
+.room-center-random3-status>small{display:block;margin-top:8px;color:#d8b9e8;font-size:10px;font-weight:800}
+@media(max-width:1100px){.room-side-random3-card img,.room-side-random3-card .friendly-random3-placeholder{width:52px!important;height:52px!important}.room-side-random3-card strong{font-size:10px}.room-side-random3-card button{font-size:9px}}
+@media(max-width:760px){.room-card-club-area--random3{padding:9px 5px!important}.room-side-random3-selector{max-width:100%;padding:8px}.room-side-random3-grid{gap:5px}.room-side-random3-card{padding:7px 3px 6px}.room-side-random3-card img,.room-side-random3-card .friendly-random3-placeholder{width:46px!important;height:46px!important}.room-side-random3-title{font-size:11px}.room-center-random3-status{width:100%}}
