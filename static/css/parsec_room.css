@@ -257,3 +257,18 @@ html[data-theme="light"] .parsec-room-panel .parsec-copy-link-btn:hover{backgrou
 .parsec-discord-link:hover{transform:translateY(-1px);border-color:rgba(152,143,255,.75);background:linear-gradient(180deg,rgba(88,101,242,.38),rgba(67,78,205,.28));color:#fff!important}
 .parsec-discord-icon{font-size:15px}
 @media(max-width:420px){.parsec-guest-link-actions{grid-template-columns:1fr!important}}
+
+/* PES Arena V1.2.9.22 - lock right rail panel order */
+.room-layout-v137 .room-arena-right-rail{
+  display:flex;
+  flex-direction:column;
+}
+.room-layout-v137 .room-arena-right-rail .parsec-room-panel{
+  order:1 !important;
+}
+.room-layout-v137 .room-arena-right-rail .room-room-history-panel{
+  order:2 !important;
+}
+.room-layout-v137 .room-arena-right-rail .room-h2h-overview-panel{
+  order:3 !important;
+}

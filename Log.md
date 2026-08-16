@@ -253,3 +253,7 @@
 - Right rail now contains exactly 3 panels: Kết Nối Parsec, Lịch Sử Phòng, Lịch Sử Đối Đầu.
 - Added all-time head-to-head stats between the two players and the 5 most recent scores.
 - Kept room history as the match results recorded inside the current room session.
+
+## V1.2.9.22 - Lock right rail panel order
+- Forced the right rail display order via CSS.
+- Order is now always: Kết Nối Parsec -> Lịch Sử Phòng -> Lịch Sử Đối Đầu.
