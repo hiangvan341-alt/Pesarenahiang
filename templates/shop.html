@@ -10,7 +10,6 @@
         <h1>Cửa hàng vật phẩm</h1>
         <p>Mở khóa khung Avatar, Banner, màu tên, huy hiệu và tiện ích bằng Zcoin.</p>
         <div class="shop3-hero-actions">
-            <a class="btn gold" href="#nap-zcoin">🪙 Nạp Zcoin</a>
             <a class="btn gold" href="{{ url_for('luckybox_home') }}">🎁 Lucky Box</a>
             <a class="btn gray" href="{{ url_for('inventory') }}">🎒 Mở Kho đồ</a>
             <a class="btn gray" href="{{ url_for('zcoin_wallet') }}">Lịch sử Zcoin</a>
@@ -231,6 +230,10 @@
     <div><strong>Giao dịch an toàn</strong><p>Zcoin chỉ bị trừ khi vật phẩm được thêm thành công vào Kho đồ. Phiếu 20% và 30% là phần thưởng do Admin cấp, không bày bán.</p></div>
 </section>
 {% endif %}
+
+<div class="shop3-hero-actions shop3-bottom-actions" aria-label="Nạp Zcoin">
+    <a class="btn gold" href="#nap-zcoin">🪙 Nạp Zcoin</a>
+</div>
 
 <div class="shop3-preview-backdrop" id="shop3Preview" hidden>
     <div class="shop3-preview-modal" role="dialog" aria-modal="true" aria-labelledby="shop3PreviewName">
