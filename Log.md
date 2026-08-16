@@ -257,3 +257,7 @@
 ## V1.2.9.22 - Lock right rail panel order
 - Forced the right rail display order via CSS.
 - Order is now always: Kết Nối Parsec -> Lịch Sử Phòng -> Lịch Sử Đối Đầu.
+
+## V1.2.9.23 - Keep player cards at default height
+- Prevented Host and Away cards from stretching to match the tall right rail.
+- Player cards now keep their normal responsive min-height while the right rail can grow independently.

@@ -5948,3 +5948,29 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
   .room-h2h-stats{grid-template-columns:1fr 76px 1fr}
   .room-h2h-stat strong{font-size:20px}
 }
+
+/* PES Arena V1.2.9.23 - player cards keep natural/default height */
+.room-layout-v137 .room-arena-frame{
+  align-items:start !important;
+}
+.room-layout-v137 .room-team-card.home,
+.room-layout-v137 .room-team-card.away{
+  align-self:start !important;
+  height:auto !important;
+}
+.room-layout-v137 .room-side-card{
+  min-height:590px !important;
+}
+.room-layout-v137 .room-arena-right-rail{
+  align-self:start !important;
+}
+
+@media(max-width:1280px){
+  .room-layout-v137 .room-side-card{min-height:540px !important}
+}
+@media(max-width:980px){
+  .room-layout-v137 .room-side-card{min-height:490px !important}
+}
+@media(max-width:680px){
+  .room-layout-v137 .room-side-card{min-height:430px !important}
+}
