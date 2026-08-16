@@ -228,3 +228,8 @@
 - Removed FAway outer frame from the guest panel.
 - Removed both inner club frames (CLBH/CLBA).
 - Restored cleaner club-area spacing so random 3 cards sit naturally without framed overlays.
+
+## V1.2.9.15 - Zcoin bonus stars
+- Removed the fire icon from the 300k total-received column.
+- Added a star only beside Bonus for 300k, 500k, and 1,000k packages.
+- Kept all other Zcoin package rows unchanged.
