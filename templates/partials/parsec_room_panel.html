@@ -45,11 +45,17 @@
         <div class="parsec-room-block">
             <div class="parsec-room-label">Link Parsec</div>
             {% if parsec_room.room_link %}
-            <button type="button" class="parsec-action-btn parsec-copy-link-btn" data-copy-text="{{ parsec_room.room_link|e }}">
-                <span class="parsec-link-icon" aria-hidden="true">🔗</span>
-                <span>Copy Link</span>
-            </button>
-            <p class="parsec-room-note"><span class="parsec-note-icon">ⓘ</span> Dán link vào ô “Join with a share link or Peer ID” → bấm Join.</p>
+            <div class="parsec-guest-link-actions">
+                <button type="button" class="parsec-action-btn parsec-copy-link-btn" data-copy-text="{{ parsec_room.room_link|e }}">
+                    <span class="parsec-link-icon" aria-hidden="true">🔗</span>
+                    <span>Copy Link</span>
+                </button>
+                <a class="parsec-action-btn parsec-open-link-btn" href="{{ parsec_room.room_link|e }}" target="_blank" rel="noopener noreferrer">
+                    <span class="parsec-open-icon" aria-hidden="true">↗</span>
+                    <span>Mở Parsec</span>
+                </a>
+            </div>
+            <p class="parsec-room-note"><span class="parsec-note-icon">ⓘ</span> Có thể bấm “Mở Parsec” để mở link trong tab mới, hoặc Copy Link để dùng thủ công.</p>
             {% else %}
             <div class="parsec-room-empty">Chủ phòng chưa gửi link Parsec.</div>
             {% endif %}

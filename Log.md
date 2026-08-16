@@ -232,3 +232,8 @@
 ## V1.2.9.16 - Remove host outer frame too
 - Removed the remaining Fhome outer frame from the host panel.
 - Kept both club frames disabled so neither side shows the inner frame overlay.
+
+## V1.2.9.17 - Guest direct-open Parsec link
+- Added “Mở Parsec” next to “Copy Link” for the guest view.
+- Opens the exact saved room Parsec URL in a new browser tab with noopener/noreferrer.
+- Kept Copy Link as an alternative.

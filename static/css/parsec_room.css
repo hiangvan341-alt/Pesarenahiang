@@ -189,3 +189,45 @@ html[data-theme="light"] .parsec-room-panel button.parsec-action-btn:hover{
   .parsec-room-inline{grid-template-columns:minmax(0,1fr) auto}
   .parsec-room-actions{justify-content:flex-start}
 }
+
+
+/* PES Arena V1.2.9.17 - guest can open saved Parsec link in a new browser tab */
+.parsec-guest-link-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.parsec-guest-link-actions .parsec-action-btn{
+  flex:0 0 auto;
+  text-decoration:none;
+}
+.parsec-open-link-btn{
+  min-width:96px;
+  gap:5px;
+  background:linear-gradient(180deg,#2878f0 0%,#1554bd 100%);
+  border-color:#4891ff;
+}
+.parsec-open-link-btn:hover{
+  background:linear-gradient(180deg,#3787fb 0%,#1a61d0 100%);
+  border-color:#69a6ff;
+}
+.parsec-open-link-btn:active{
+  background:linear-gradient(180deg,#2167d1 0%,#124aa8 100%);
+}
+.parsec-open-icon{font-size:12px;line-height:1}
+html[data-theme="light"] .parsec-room-panel .parsec-open-link-btn,
+html[data-theme="light"] .parsec-room-panel a.parsec-open-link-btn{
+  background:linear-gradient(180deg,#2878f0 0%,#1554bd 100%)!important;
+  border-color:#4891ff!important;
+  color:#fff!important;
+}
+html[data-theme="light"] .parsec-room-panel .parsec-open-link-btn:hover,
+html[data-theme="light"] .parsec-room-panel a.parsec-open-link-btn:hover{
+  background:linear-gradient(180deg,#3787fb 0%,#1a61d0 100%)!important;
+  border-color:#69a6ff!important;
+}
+@media(max-width:520px){
+  .parsec-guest-link-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .parsec-guest-link-actions .parsec-action-btn{width:100%}
+}
