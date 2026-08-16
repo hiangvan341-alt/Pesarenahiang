@@ -1,9 +1,10 @@
-<section class="panel room-session-h2h room-score-history-panel room-history-full" aria-label="Lịch sử tỷ số trong phòng">
+{% set room_history = room_head_to_head %}
+<section class="panel room-score-history-panel room-room-history-panel" aria-label="Lịch sử phòng">
     <div class="room-score-history-title">
-        <h3>LỊCH SỬ ĐẤU</h3>
+        <h3>LỊCH SỬ PHÒNG</h3>
     </div>
-
-    {% if room_head_to_head and room_head_to_head.matches %}
+    <p class="room-history-caption">Các tỷ số đã diễn ra trong phòng này.</p>
+    {% if room_history and room_history.available and room_history.matches %}
     <div class="room-score-history-board">
         <div class="room-score-history-head">
             <span class="{{ room.host_name_style_class or '' }}" title="{{ room.host_name }}">{{ room.host_name }}</span>
@@ -11,7 +12,7 @@
             <span class="is-right {{ room.guest_name_style_class or '' }}" title="{{ room.guest_name or 'Đối thủ' }}">{{ room.guest_name or 'Đối thủ' }}</span>
         </div>
         <div class="room-score-history-list">
-            {% for match in room_head_to_head.matches %}
+            {% for match in room_history.matches %}
             <div class="room-score-history-row" aria-label="Tỷ số {{ match.host_score }} - {{ match.guest_score }}">
                 <span class="room-score-value{% if match.host_score|int > match.guest_score|int %} is-winner{% endif %}">{{ match.host_score }}</span>
                 <span class="room-score-separator">-</span>
@@ -21,6 +22,6 @@
         </div>
     </div>
     {% else %}
-    <p class="room-session-empty">Chưa có trận nào trong lịch sử phòng.</p>
+    <p class="room-session-empty">Chưa có tỷ số nào trong phòng này.</p>
     {% endif %}
 </section>

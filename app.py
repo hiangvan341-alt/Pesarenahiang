@@ -3946,6 +3946,91 @@ def build_room_head_to_head(room):
     return empty
 
 
+
+
+def build_player_head_to_head(room):
+    """Thống kê đối đầu toàn bộ giữa 2 game thủ trong phòng.
+
+    Dùng cho panel cột phải: tổng số lần gặp và 5 tỷ số gần nhất.
+    """
+    host_id = room.get("host_user_id")
+    guest_id = room.get("guest_user_id")
+
+    result_data = {
+        "available": bool(host_id and guest_id),
+        "total": 0,
+        "host_wins": 0,
+        "guest_wins": 0,
+        "draws": 0,
+        "host_goals": 0,
+        "guest_goals": 0,
+        "matches": [],
+    }
+    if not host_id or not guest_id:
+        return result_data
+
+    raw_matches = None
+    try:
+        pair_filter = (
+            f"and(player1_id.eq.{host_id},player2_id.eq.{guest_id}),"
+            f"and(player1_id.eq.{guest_id},player2_id.eq.{host_id})"
+        )
+        query = (
+            db.table("matches")
+            .select("id,player1_id,player2_id,score1,score2,delta1,delta2,created_at,status")
+            .eq("status", "confirmed")
+            .or_(pair_filter)
+            .order("created_at", desc=True)
+            .limit(200)
+        )
+        result = execute_query(query, "player_head_to_head_pair", attempts=2)
+        raw_matches = result.data or []
+    except Exception as exc:
+        app.logger.warning("Player head-to-head optimized query failed; using cache fallback: %s", exc)
+
+    pair = {str(host_id), str(guest_id)}
+    if raw_matches is None:
+        raw_matches = []
+        for match in list_matches("confirmed"):
+            if {str(match.get("player1_id")), str(match.get("player2_id"))} != pair:
+                continue
+            raw_matches.append(match)
+
+    selected = []
+    for match in raw_matches:
+        if {str(match.get("player1_id")), str(match.get("player2_id"))} != pair:
+            continue
+        try:
+            score1 = int(match.get("score1") or 0)
+            score2 = int(match.get("score2") or 0)
+        except (TypeError, ValueError):
+            continue
+
+        host_is_player1 = str(match.get("player1_id")) == str(host_id)
+        host_score = score1 if host_is_player1 else score2
+        guest_score = score2 if host_is_player1 else score1
+        item = {
+            "id": match.get("id"),
+            "created_at_display": format_vn_datetime(match.get("created_at")),
+            "host_score": host_score,
+            "guest_score": guest_score,
+        }
+        selected.append(item)
+
+        result_data["host_goals"] += host_score
+        result_data["guest_goals"] += guest_score
+        if host_score > guest_score:
+            result_data["host_wins"] += 1
+        elif guest_score > host_score:
+            result_data["guest_wins"] += 1
+        else:
+            result_data["draws"] += 1
+
+    result_data["total"] = len(selected)
+    result_data["matches"] = selected[:5]
+    return result_data
+
+
 def _room_by_match_id(rooms):
     return {
         str(room.get("match_id")): room

@@ -5872,3 +5872,79 @@ html[data-theme="light"] .account-presence-control select{background:#fff!import
     font-size: 17px !important;
   }
 }
+
+
+/* PES Arena V1.2.9.21 - right rail relayout: Parsec + Room History + Head-to-Head */
+.room-side-rail.room-arena-right-rail{
+  display:flex !important;
+  flex-direction:column;
+  gap:16px;
+  min-height:640px;
+}
+.room-side-rail.room-arena-right-rail > .panel{
+  flex:0 0 auto;
+  margin:0;
+}
+.room-room-history-panel,.room-h2h-overview-panel{
+  padding:16px 16px 14px;
+}
+.room-history-caption{
+  margin:0 0 10px;
+  color:#b7c4d7;
+  font-size:12px;
+  line-height:1.45;
+}
+.room-h2h-summary{
+  display:grid;
+  gap:10px;
+  margin-bottom:10px;
+}
+.room-h2h-total{
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+  color:#ecf2fb;
+  font-size:13px;
+  line-height:1.45;
+}
+.room-h2h-total strong{color:#ffd56b;font-size:18px;font-weight:900}
+.room-h2h-stats{
+  display:grid;
+  grid-template-columns:1fr 88px 1fr;
+  gap:8px;
+}
+.room-h2h-stat{
+  min-width:0;
+  padding:10px 8px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+  text-align:center;
+}
+.room-h2h-stat span{
+  display:block;
+  font-size:11px;
+  color:#c8d4e4;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.room-h2h-stat strong{
+  display:block;
+  margin-top:4px;
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+}
+.room-h2h-stat small{display:block;margin-top:4px;font-size:11px;color:#95a7bf;font-weight:800}
+.room-h2h-stat.home strong{color:#76b6ff}
+.room-h2h-stat.draws strong{color:#ffd56b}
+.room-h2h-stat.away strong{color:#ff8a9e}
+@media(max-width:1120px){
+  .room-side-rail.room-arena-right-rail{min-height:unset}
+}
+@media(max-width:640px){
+  .room-h2h-stats{grid-template-columns:1fr 76px 1fr}
+  .room-h2h-stat strong{font-size:20px}
+}

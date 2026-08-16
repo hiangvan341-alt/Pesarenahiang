@@ -1,0 +1,51 @@
+{% set h2h = player_head_to_head %}
+<section class="panel room-h2h-overview-panel" aria-label="Lịch sử đối đầu">
+    <div class="room-score-history-title">
+        <h3>LỊCH SỬ ĐỐI ĐẦU</h3>
+    </div>
+    {% if h2h and h2h.available %}
+    <div class="room-h2h-summary">
+        <div class="room-h2h-total">Hai game thủ đã gặp nhau <strong>{{ h2h.total }}</strong> lần.</div>
+        <div class="room-h2h-stats">
+            <div class="room-h2h-stat home">
+                <span>{{ room.host_name }}</span>
+                <strong>{{ h2h.host_wins }}</strong>
+                <small>Thắng</small>
+            </div>
+            <div class="room-h2h-stat draws">
+                <span>Hòa</span>
+                <strong>{{ h2h.draws }}</strong>
+                <small>Trận</small>
+            </div>
+            <div class="room-h2h-stat away">
+                <span>{{ room.guest_name or 'Đối thủ' }}</span>
+                <strong>{{ h2h.guest_wins }}</strong>
+                <small>Thắng</small>
+            </div>
+        </div>
+    </div>
+    <p class="room-history-caption">5 tỷ số gần nhất giữa 2 game thủ.</p>
+    {% if h2h.matches %}
+    <div class="room-score-history-board">
+        <div class="room-score-history-head">
+            <span class="{{ room.host_name_style_class or '' }}" title="{{ room.host_name }}">{{ room.host_name }}</span>
+            <strong>TỶ SỐ</strong>
+            <span class="is-right {{ room.guest_name_style_class or '' }}" title="{{ room.guest_name or 'Đối thủ' }}">{{ room.guest_name or 'Đối thủ' }}</span>
+        </div>
+        <div class="room-score-history-list">
+            {% for match in h2h.matches %}
+            <div class="room-score-history-row" aria-label="Tỷ số {{ match.host_score }} - {{ match.guest_score }}">
+                <span class="room-score-value{% if match.host_score|int > match.guest_score|int %} is-winner{% endif %}">{{ match.host_score }}</span>
+                <span class="room-score-separator">-</span>
+                <span class="room-score-value{% if match.guest_score|int > match.host_score|int %} is-winner{% endif %}">{{ match.guest_score }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <p class="room-session-empty">Hai game thủ chưa có trận đối đầu nào.</p>
+    {% endif %}
+    {% else %}
+    <p class="room-session-empty">Cần đủ 2 game thủ trong phòng để hiển thị lịch sử đối đầu.</p>
+    {% endif %}
+</section>

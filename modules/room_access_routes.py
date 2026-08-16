@@ -155,6 +155,7 @@ def register_routes(context):
             "initial_room_state_key": build_room_state_key(room),
             "friendly_tiers": get_available_team_tiers(),
             "room_head_to_head": build_room_head_to_head(room),
+            "player_head_to_head": build_player_head_to_head(room),
             # Luôn truyền cấu hình Tìm Nhanh vào cả trang đầy đủ và HTML polling.
             # Nếu thiếu, Jinja dùng màu mặc định và có thể không phản ánh lựa chọn Admin.
             "quick_match_config": get_quick_match_config(),

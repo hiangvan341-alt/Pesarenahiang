@@ -247,3 +247,9 @@
 ## V1.2.9.20 - Make QUAY QUAN button thicker
 - Increased the yellow QUAY QUAN button face height and padding.
 - Kept the no-outline/no-wrapper style from V1.2.9.19 unchanged.
+
+## V1.2.9.21 - Right rail relayout
+- Removed the 'Thông tin phòng đấu' panel from the right column.
+- Right rail now contains exactly 3 panels: Kết Nối Parsec, Lịch Sử Phòng, Lịch Sử Đối Đầu.
+- Added all-time head-to-head stats between the two players and the 5 most recent scores.
+- Kept room history as the match results recorded inside the current room session.
