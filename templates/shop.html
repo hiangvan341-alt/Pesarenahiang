@@ -10,6 +10,7 @@
         <h1>Cửa hàng vật phẩm</h1>
         <p>Mở khóa khung Avatar, Banner, màu tên, huy hiệu và tiện ích bằng Zcoin.</p>
         <div class="shop3-hero-actions">
+            <a class="btn gold" href="#nap-zcoin">🪙 Nạp Zcoin</a>
             <a class="btn gold" href="{{ url_for('luckybox_home') }}">🎁 Lucky Box</a>
             <a class="btn gray" href="{{ url_for('inventory') }}">🎒 Mở Kho đồ</a>
             <a class="btn gray" href="{{ url_for('zcoin_wallet') }}">Lịch sử Zcoin</a>
@@ -19,6 +20,97 @@
         <span>Số dư hiện tại</span>
         <div><img src="{{ asset_url('zcoin-logo.webp') }}" alt="Zcoin"><strong>{{ format_zcoin(current_user.zcoin_balance|default(0, true)) }}</strong></div>
         <small>ZCOIN</small>
+    </div>
+</section>
+
+<section class="shop3-topup" id="nap-zcoin" aria-labelledby="shop3TopupTitle">
+    <div class="shop3-topup-head">
+        <div>
+            <span class="eyebrow">NẠP ZCOIN · CHUYỂN KHOẢN NGÂN HÀNG</span>
+            <h2 id="shop3TopupTitle">Nạp Zcoin vào tài khoản PES Arena</h2>
+            <p>Chọn gói phù hợp, quét mã QR để chuyển khoản và gửi ảnh giao dịch cho Admin để được cộng Zcoin.</p>
+        </div>
+        <div class="shop3-topup-balance">
+            <span>Số dư của bạn</span>
+            <strong><img src="{{ asset_url('zcoin-logo.webp') }}" alt="">{{ format_zcoin(current_user.zcoin_balance|default(0, true)) }}</strong>
+            <small>Zcoin</small>
+        </div>
+    </div>
+
+    <div class="shop3-topup-layout">
+        <div class="shop3-topup-main">
+            <div class="shop3-topup-title-row">
+                <div>
+                    <span class="shop3-step-badge">1</span>
+                    <div><strong>Chọn gói Zcoin</strong><small>Gói lớn nhận nhiều Zcoin hơn</small></div>
+                </div>
+            </div>
+            <div class="shop3-package-grid">
+                <button class="shop3-package" type="button" data-topup-package data-amount="50000" data-zcoin="1000">
+                    <span>50.000đ</span><strong>1.000</strong><small>Zcoin</small>
+                </button>
+                <button class="shop3-package" type="button" data-topup-package data-amount="100000" data-zcoin="2100">
+                    <span>100.000đ</span><strong>2.100</strong><small>Zcoin</small><em>+5%</em>
+                </button>
+                <button class="shop3-package" type="button" data-topup-package data-amount="200000" data-zcoin="4400">
+                    <span>200.000đ</span><strong>4.400</strong><small>Zcoin</small><em>+10%</em>
+                </button>
+                <button class="shop3-package" type="button" data-topup-package data-amount="300000" data-zcoin="6900">
+                    <span>300.000đ</span><strong>6.900</strong><small>Zcoin</small><em>+15%</em>
+                </button>
+                <button class="shop3-package is-popular" type="button" data-topup-package data-amount="500000" data-zcoin="12000">
+                    <b>PHỔ BIẾN</b><span>500.000đ</span><strong>12.000</strong><small>Zcoin</small><em>+20%</em>
+                </button>
+                <button class="shop3-package is-best" type="button" data-topup-package data-amount="1000000" data-zcoin="26000">
+                    <b>TỐT NHẤT</b><span>1.000.000đ</span><strong>26.000</strong><small>Zcoin</small><em>+30%</em>
+                </button>
+            </div>
+
+            <div class="shop3-topup-guide">
+                <div class="shop3-topup-title-row">
+                    <div>
+                        <span class="shop3-step-badge">2</span>
+                        <div><strong>Chuyển khoản theo mã QR</strong><small>Kiểm tra đúng tên người thụ hưởng trước khi xác nhận</small></div>
+                    </div>
+                </div>
+                <ol class="shop3-topup-steps">
+                    <li><b>Mở ứng dụng ngân hàng</b> và chọn chức năng quét mã QR.</li>
+                    <li><b>Quét mã QR bên cạnh</b>, kiểm tra tên tài khoản thụ hưởng là <strong>DO MINH TAN</strong>.</li>
+                    <li>Nhập đúng <b>số tiền của gói Zcoin</b> bạn đã chọn.</li>
+                    <li>Nội dung chuyển khoản ghi: <b>Tên chủ tài khoản ngân hàng + Số tiền</b>.<br><span>Ví dụ: <code>NGUYEN VAN A 200000</code></span></li>
+                    <li>Chuyển khoản thành công thì <b>chụp màn hình giao dịch</b>.</li>
+                    <li>Gửi ảnh giao dịch kèm <b>tên tài khoản PES Arena</b> cho Admin để xác nhận và cộng Zcoin.</li>
+                </ol>
+            </div>
+        </div>
+
+        <aside class="shop3-topup-payment">
+            <div class="shop3-qr-card">
+                <span class="eyebrow">MÃ QR NGÂN HÀNG</span>
+                <div class="shop3-qr-shell">
+                    <img src="https://wlnvdfghatgeygecwrqb.supabase.co/storage/v1/object/public/pes-assets/v1/Qr.webp" alt="Mã QR ngân hàng nạp Zcoin" loading="lazy">
+                </div>
+                <div class="shop3-beneficiary">
+                    <small>TÊN TK THỤ HƯỞNG</small>
+                    <strong>DO MINH TAN</strong>
+                </div>
+            </div>
+            <div class="shop3-transfer-summary">
+                <span>Gói đang chọn</span>
+                <div><b id="topupSelectedAmount">200.000đ</b><strong><span id="topupSelectedZcoin">4.400</span> Zcoin</strong></div>
+                <small>Hãy chuyển đúng số tiền của gói để Admin đối soát nhanh hơn.</small>
+            </div>
+            <div class="shop3-transfer-content">
+                <span>NỘI DUNG CHUYỂN KHOẢN</span>
+                <strong>Tên chủ TK ngân hàng + Số tiền</strong>
+                <code id="topupTransferExample">NGUYEN VAN A 200000</code>
+                <p>Ví dụ trên sẽ tự đổi số tiền khi bạn chọn gói khác. Hãy thay <b>NGUYEN VAN A</b> bằng đúng tên chủ tài khoản ngân hàng dùng để chuyển.</p>
+            </div>
+            <div class="shop3-admin-notice">
+                <span>✓</span>
+                <p><strong>Sau khi chuyển khoản</strong> vui lòng chụp màn hình giao dịch và gửi tên tài khoản PES Arena cho Admin.</p>
+            </div>
+        </aside>
     </div>
 </section>
 

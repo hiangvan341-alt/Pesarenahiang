@@ -1,6 +1,24 @@
 (function(){
   function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn);else fn();}
   ready(function(){
+    const packages=document.querySelectorAll('[data-topup-package]');
+    const selectedAmount=document.getElementById('topupSelectedAmount');
+    const selectedZcoin=document.getElementById('topupSelectedZcoin');
+    const transferExample=document.getElementById('topupTransferExample');
+    const formatVnd=value=>new Intl.NumberFormat('vi-VN').format(Number(value||0))+'đ';
+    const formatNumber=value=>new Intl.NumberFormat('vi-VN').format(Number(value||0));
+    function selectTopupPackage(button){
+      if(!button)return;
+      packages.forEach(item=>item.classList.toggle('is-selected',item===button));
+      if(selectedAmount)selectedAmount.textContent=formatVnd(button.dataset.amount);
+      if(selectedZcoin)selectedZcoin.textContent=formatNumber(button.dataset.zcoin);
+      if(transferExample)transferExample.textContent='NGUYEN VAN A '+String(button.dataset.amount||'');
+    }
+    if(packages.length){
+      packages.forEach(button=>button.addEventListener('click',()=>selectTopupPackage(button)));
+      selectTopupPackage(Array.from(packages).find(button=>button.dataset.amount==='200000')||packages[0]);
+    }
+
     const modal=document.getElementById('shop3Preview');
     if(!modal)return;
     const banner=document.getElementById('shop3PreviewBanner');
