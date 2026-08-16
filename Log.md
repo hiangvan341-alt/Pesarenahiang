@@ -261,3 +261,7 @@
 ## V1.2.9.23 - Keep player cards at default height
 - Prevented Host and Away cards from stretching to match the tall right rail.
 - Player cards now keep their normal responsive min-height while the right rail can grow independently.
+
+## V1.2.9.24 - Center height matches player cards
+- Center battle column now uses the same responsive height as Host/Away cards.
+- Right rail remains independent and can extend lower for Parsec/room history/head-to-head.
