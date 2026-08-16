@@ -224,8 +224,7 @@
 - Forced one inherited font, uniform size and weight across all table cells.
 - Default selected package is now 300,000đ.
 
-## V1.2.9.13 - Fix Zcoin 300k icon columns
-- Removed special featured styling from the 300.000đ package.
-- Moved ⭐ into the Bonus column after +1.800.
-- Kept 🔥 in the Total received column after 7.800 Zcoin.
-- Preserved the same font and font size across all three columns.
+## V1.2.9.14 - Remove away outer frame and both club frames
+- Removed FAway outer frame from the guest panel.
+- Removed both inner club frames (CLBH/CLBA).
+- Restored cleaner club-area spacing so random 3 cards sit naturally without framed overlays.
